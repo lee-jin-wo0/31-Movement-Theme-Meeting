@@ -29,7 +29,7 @@
 
 - Seoul Solution - ‘[세미나 자료] 삼일대로 심포지엄 발표자료_6월 9일(금)’
 
-![image04.png](./image04.png.png)
+![image04.png](./image04.png)
 
 ### 2) UI/UX (화면 구조 및 기능)
 
