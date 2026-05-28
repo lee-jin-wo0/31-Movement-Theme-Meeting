@@ -1,0 +1,189 @@
+{
+  "main": {
+    "id": "92adaac71d91c7a4",
+    "type": "split",
+    "children": [
+      {
+        "id": "24c0ab33ac6e8e6a",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "629b3917f0e60a60",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
+              "icon": "lucide-file",
+              "title": "새 탭"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "e58692d7ae2d9c13",
+    "type": "split",
+    "children": [
+      {
+        "id": "8e95dac44e8de4fb",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "22ea6154aa190763",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "검색"
+            }
+          },
+          {
+            "id": "92d622ed10443d61",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "파일 탐색기"
+            }
+          }
+        ],
+        "currentTab": 1
+      },
+      {
+        "id": "592b4a8c1d1e1570",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ca9253421e325162",
+            "type": "leaf",
+            "state": {
+              "type": "oz-calendar",
+              "state": {},
+              "icon": "OZCAL_ICON",
+              "title": "OZ Calendar"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 317.5
+  },
+  "right": {
+    "id": "a9cd991c4751d969",
+    "type": "split",
+    "children": [
+      {
+        "id": "673092d7306d2c9d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "2cf6e82b12778f5c",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
+          },
+          {
+            "id": "ec6ede689cf0394d",
+            "type": "leaf",
+            "state": {
+              "type": "oz-calendar",
+              "state": {},
+              "icon": "lucide-ghost",
+              "title": "oz-calendar"
+            }
+          },
+          {
+            "id": "63b94ef04900f2cf",
+            "type": "leaf",
+            "state": {
+              "type": "oz-calendar",
+              "state": {},
+              "icon": "OZCAL_ICON",
+              "title": "OZ Calendar"
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "command-palette:명령어 팔레트 열기": true,
+      "obsidian-importer:Open Importer": false,
+      "templater-obsidian:Templater": false,
+      "obsidian-git:Open Git source control": false,
+      "periodic-notes:Open today": false
+    }
+  },
+  "active": "629b3917f0e60a60",
+  "lastOpenFiles": [
+    "31-Movement-Theme-Meeting/README.md",
+    "일일일지/커밋테스트.md",
+    "일일일지",
+    "개인프로젝트",
+    "새 폴더",
+    "images/march-first-presentation.html",
+    "교육_일일노트/20260526_개인기획.md",
+    "교육_일일노트/20260527_개인기획.md",
+    "교육_일일노트/20260521_팀회의.md",
+    "교육_일일노트/20260520_팀회의.md",
+    "교육_일일노트/20260519_개인기획.md",
+    "교육_일일노트/20260518_개인기획.md",
+    "교육_일일노트/20260515_Project_기획.md",
+    "교육_일일노트/20260508_React_3일차.md",
+    "교육_일일노트/20260507_React_2일차.md",
+    "교육_일일노트/20260506_UIUX.md",
+    "교육_일일노트/20260430_서버구축_2일차.md",
+    "교육_일일노트/20260429_서버구축_1일차.md",
+    "교육_일일노트/20260422_React_1일차.md",
+    "교육_일일노트/20260421_PyQgis_2일차.md",
+    "테스트프로젝트/march-first-revised (2).html",
+    "테스트프로젝트/march-first-presentation.html",
+    "자소서/lh 무기계약직.md",
+    "테스트프로젝트/군복무 기간.md",
+    "테스트프로젝트/march-first-revised.html",
+    "테스트프로젝트/GPT.html",
+    "자소서/한국사회보장정보원.md",
+    "무제",
+    "자소서",
+    "교육_일일노트/공간정보 기초 개념.md",
+    "images/Pasted image 20260520094255.png",
+    "images/한강ui(배경) 1.png",
+    "images/예시 2.png",
+    "images/한강ui(과거).png",
+    "images/한강ui(과거) 1.png",
+    "images/한강ui(배경).png",
+    "images/한강 ui(지점).png",
+    "images/예시 1 .png",
+    "images/한강 ui(지점) 2.png",
+    "images/Pasted image 20260520093751.png",
+    "교육_일일노트/20260514_Project_기획.md",
+    "교육_일일노트/20260513_OpenAPI 활용.md",
+    "교육_일일노트/20260420_PyQgis_1일차.md",
+    "교육_일일노트/20260511_OpenAPI 활용.md",
+    "교육_일일노트/20260512_OpenAPI 활용.md",
+    "테마ID.md"
+  ]
+}
