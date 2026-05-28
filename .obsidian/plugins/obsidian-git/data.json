@@ -1,5 +1,5 @@
 {
-  "commitMessage": "자동업데이트_사무실: {{date}}",
+  "commitMessage": "커밋날짜: {{date}}",
   "autoCommitMessage": "vault backup: {{date}}",
   "commitMessageScript": "",
   "commitDateFormat": "YYYY-MM-DD HH:mm:ss",

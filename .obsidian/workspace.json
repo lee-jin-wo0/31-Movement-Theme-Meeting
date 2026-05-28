@@ -4,17 +4,22 @@
     "type": "split",
     "children": [
       {
-        "id": "24c0ab33ac6e8e6a",
+        "id": "6a9467df0393b437",
         "type": "tabs",
         "children": [
           {
-            "id": "629b3917f0e60a60",
+            "id": "2d0bed1db1df0761",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "일일일지/20260528_회의.md",
+                "mode": "source",
+                "source": false,
+                "backlinks": false
+              },
               "icon": "lucide-file",
-              "title": "새 탭"
+              "title": "20260528_회의"
             }
           }
         ]
@@ -137,8 +142,9 @@
       "periodic-notes:Open today": false
     }
   },
-  "active": "629b3917f0e60a60",
+  "active": "2d0bed1db1df0761",
   "lastOpenFiles": [
+    "일일일지/20260528_회의.md",
     "31-Movement-Theme-Meeting/README.md",
     "일일일지/커밋테스트.md",
     "일일일지",
@@ -183,7 +189,6 @@
     "교육_일일노트/20260513_OpenAPI 활용.md",
     "교육_일일노트/20260420_PyQgis_1일차.md",
     "교육_일일노트/20260511_OpenAPI 활용.md",
-    "교육_일일노트/20260512_OpenAPI 활용.md",
-    "테마ID.md"
+    "교육_일일노트/20260512_OpenAPI 활용.md"
   ]
 }
