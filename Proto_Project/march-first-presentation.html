@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3.1운동 스토리맵 | March First Movement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    :root {
+      --cream: #d8d2c8;
+      --ink: #0e0e0e;
+      --red: #a83228;
+      --red-dark: #7a2218;
+      --gold: #9a7a2a;
+      --gold-light: #b8922e;
+      --warm-gray: #6a6058;
+      --paper: #181614;
+      --sepia: #3a3028;
+      --hanji: #e8e0d0;
+      --hanji-text: #1a1510;
+      /* section bg 단계 */
+      --bg-0: #0e0e0e;
+      --bg-1: #131210;
+      --bg-2: #171512;
+      --bg-3: #1a1814;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--ink);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ── LANGUAGE TOGGLE ── */
+    #lang-toggle {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      gap: 0;
+      border: 1px solid rgba(245, 240, 232, 0.3);
+      border-radius: 2px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+
+    #lang-toggle button {
+      padding: 0.4rem 0.9rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      border: none;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 500;
+    }
+
+    #lang-toggle button.active {
+      background: var(--red);
+      color: #fff;
+    }
+
+    #lang-toggle button:not(.active) {
+      background: rgba(0, 0, 0, 0.4);
+      color: rgba(245, 240, 232, 0.6);
+    }
+
+    #lang-toggle button:not(.active):hover {
+      background: rgba(0, 0, 0, 0.6);
+      color: var(--cream);
+    }
+
+    /* ── PROGRESS BAR ── */
+    #progress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--red);
+      z-index: 9998;
+      width: 0%;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 8px var(--red);
+    }
+
+    /* ── NAV DOTS ── */
+    #nav-dots {
+      position: fixed;
+      right: 1.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(245, 240, 232, 0.4);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .dot.active {
+      background: var(--red);
+      border-color: var(--red);
+      transform: scale(1.4);
+    }
+
+    .dot:hover {
+      border-color: var(--cream);
+    }
+
+    /* ── SECTIONS ── */
+    section {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ── HERO ── */
+    #hero {
+      background: var(--ink);
+      flex-direction: column;
+      text-align: center;
+      gap: 0;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(168, 50, 40, 0.07) 0%, transparent 70%),
+        linear-gradient(180deg, #0c0c0c 0%, #0e0e0e 60%, #0c0c0c 100%);
+    }
+
+    .hero-texture {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23f5f0e8' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    /* Taegukgi-inspired decorative ring */
+    .hero-ring {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border: 1px solid rgba(192, 57, 43, 0.15);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: slowRotate 60s linear infinite;
+    }
+
+    .hero-ring::before {
+      content: '';
+      position: absolute;
+      inset: 30px;
+      border: 1px solid rgba(184, 134, 11, 0.1);
+      border-radius: 50%;
+    }
+
+    @keyframes slowRotate {
+      to {
+        transform: translate(-50%, -50%) rotate(360deg);
+      }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 900px;
+      padding: 2rem;
+    }
+
+    .hero-date {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      letter-spacing: 0.3em;
+      color: var(--gold-light);
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 1s 0.3s forwards;
+    }
+
+    .hero-title-ko {
+      font-family: 'Noto Serif KR', serif;
+      font-weight: 900;
+      font-size: clamp(4rem, 14vw, 10rem);
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      color: var(--cream);
+      opacity: 0;
+      animation: fadeUp 1s 0.5s forwards;
+    }
+
+    .hero-title-ko span {
+      color: var(--red);
+      display: inline-block;
+    }
+
+    .hero-title-en {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(0.85rem, 2.5vw, 1.3rem);
+      font-weight: 400;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--warm-gray);
+      margin-top: 1rem;
+      opacity: 0;
+      animation: fadeUp 1s 0.7s forwards;
+    }
+
+    .hero-subtitle {
+      margin-top: 2.5rem;
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      line-height: 1.8;
+      color: rgba(245, 240, 232, 0.55);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      opacity: 0;
+      animation: fadeUp 1s 0.9s forwards;
+    }
+
+    .scroll-cue {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fadeUp 1s 1.5s forwards;
+    }
+
+    .scroll-cue span {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      color: var(--warm-gray);
+      text-transform: uppercase;
+    }
+
+    .scroll-cue .arrow {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--warm-gray), transparent);
+      animation: arrowPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes arrowPulse {
+
+      0%,
+      100% {
+        opacity: 0.4;
+        transform: scaleY(1);
+      }
+
+      50% {
+        opacity: 1;
+        transform: scaleY(1.3);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── STANDARD CONTENT SECTION ── */
+    .story-section {
+      background: var(--bg-1);
+      color: var(--cream);
+      flex-direction: column;
+      align-items: stretch;
+      padding: 0;
+    }
+
+    .story-section.dark {
+      background: var(--bg-2);
+      color: var(--cream);
+    }
+
+    .story-section.red-accent {
+      background: #1a1010;
+      color: var(--cream);
+    }
+
+    /* ── SPLIT LAYOUT: TEXT LEFT, MAP/IMAGE RIGHT ── */
+    .split-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    .split-layout.reverse {
+      direction: rtl;
+    }
+
+    .split-layout.reverse>* {
+      direction: ltr;
+    }
+
+    .split-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: clamp(3rem, 7vw, 7rem) clamp(2rem, 5vw, 5rem);
+    }
+
+    .split-visual {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ── MAP ── */
+    .map-container {
+      width: 100%;
+      height: 100%;
+      min-height: 500px;
+      position: relative;
+    }
+
+    .leaflet-map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.78rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      opacity: 0.6;
+    }
+
+    .section-label.red {
+      color: var(--red);
+    }
+
+    .section-label.gold {
+      color: var(--gold);
+    }
+
+    .section-label.light {
+      color: var(--gold-light);
+      opacity: 0.8;
+    }
+
+    /* ── CHAPTER NUMBER ── */
+    .chapter-num {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(5rem, 12vw, 9rem);
+      font-weight: 700;
+      line-height: 0.85;
+      opacity: 0.06;
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      pointer-events: none;
+      color: var(--cream);
+    }
+
+    .dark .chapter-num {
+      color: var(--cream);
+    }
+
+    /* ── HEADINGS ── */
+    .section-heading-ko {
+      font-family: 'Noto Serif KR', serif;
+      font-weight: 700;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1.25;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.01em;
+    }
+
+    .section-heading-en {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(0.95rem, 2vw, 1.3rem);
+      opacity: 0.5;
+      margin-bottom: 2rem;
+      font-weight: 400;
+    }
+
+    .section-body {
+      font-size: clamp(0.88rem, 1.4vw, 1rem);
+      line-height: 1.95;
+      opacity: 0.85;
+    }
+
+    .section-body p {
+      margin-bottom: 1.1rem;
+    }
+
+    .section-body-en {
+      font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+      line-height: 1.85;
+      opacity: 0.55;
+      margin-top: 1.2rem;
+      border-top: 1px solid currentColor;
+      border-opacity: 0.15;
+      padding-top: 1.2rem;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+    }
+
+    /* ── QUOTE BLOCK ── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 1.5rem 2rem;
+      border-left: 3px solid var(--red);
+      background: rgba(192, 57, 43, 0.06);
+    }
+
+    .dark .pull-quote {
+      background: rgba(192, 57, 43, 0.1);
+    }
+
+    .pull-quote-ko {
+      font-family: 'Noto Serif KR', serif;
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      line-height: 1.7;
+      font-weight: 700;
+    }
+
+    .pull-quote-en {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.9rem;
+      opacity: 0.55;
+      margin-top: 0.6rem;
+      line-height: 1.6;
+    }
+
+    /* ── STAT BLOCKS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(192, 57, 43, 0.2);
+      margin: 2rem 0;
+    }
+
+    .stat-block {
+      background: var(--bg-2);
+      padding: 1.5rem 1rem;
+      text-align: center;
+    }
+
+    .dark .stat-block {
+      background: var(--bg-3);
+    }
+
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      color: var(--red);
+      display: block;
+      line-height: 1;
+    }
+
+    .stat-label-ko {
+      font-size: 0.75rem;
+      margin-top: 0.4rem;
+      opacity: 0.7;
+      display: block;
+    }
+
+    .stat-label-en {
+      font-size: 0.65rem;
+      opacity: 0.4;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      display: block;
+    }
+
+    /* ── TIMELINE SECTION ── */
+    #timeline-section {
+      background: #0d0a05;
+      color: var(--cream);
+      flex-direction: column;
+      padding: clamp(4rem, 8vw, 8rem) clamp(2rem, 8vw, 8rem);
+    }
+
+    .timeline-header {
+      text-align: center;
+      margin-bottom: 5rem;
+    }
+
+    .timeline-track {
+      position: relative;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--gold) 15%, var(--red) 50%, var(--gold) 85%, transparent);
+      transform: translateX(-50%);
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 1fr 60px 1fr;
+      gap: 0;
+      margin-bottom: 3.5rem;
+      align-items: start;
+    }
+
+    .tl-date-badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.35rem 0.75rem;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+      border: 1px solid rgba(154, 122, 42, 0.35);
+      background: rgba(154, 122, 42, 0.12);
+    }
+
+    .tl-date-badge .badge-year {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      opacity: 0.7;
+    }
+
+    .tl-date-badge .badge-day {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--gold-light);
+    }
+
+    .tl-date-badge.cat-prep {
+      background: rgba(154, 122, 42, 0.12);
+      border-color: rgba(154, 122, 42, 0.35);
+    }
+
+    .tl-date-badge.cat-prep .badge-year,
+    .tl-date-badge.cat-prep .badge-day {
+      color: var(--gold-light);
+    }
+
+    .tl-date-badge.cat-main {
+      background: rgba(168, 50, 40, 0.15);
+      border-color: rgba(168, 50, 40, 0.5);
+    }
+
+    .tl-date-badge.cat-main .badge-year,
+    .tl-date-badge.cat-main .badge-day {
+      color: #d9534f;
+    }
+
+    .tl-date-badge.cat-spread {
+      background: rgba(216, 210, 200, 0.07);
+      border-color: rgba(216, 210, 200, 0.2);
+    }
+
+    .tl-date-badge.cat-spread .badge-year,
+    .tl-date-badge.cat-spread .badge-day {
+      color: var(--cream);
+    }
+
+    .tl-date-badge.cat-result {
+      background: rgba(154, 122, 42, 0.18);
+      border-color: rgba(154, 122, 42, 0.5);
+    }
+
+    .tl-date-badge.cat-result .badge-year,
+    .tl-date-badge.cat-result .badge-day {
+      color: var(--gold-light);
+    }
+
+    .tl-card {
+      padding: 1rem 1.25rem;
+      border: 1px solid rgba(216, 210, 200, 0.08);
+      background: rgba(255, 255, 255, 0.02);
+      cursor: pointer;
+      transition: border-color 0.3s, background 0.3s;
+      position: relative;
+    }
+
+    .tl-card:hover {
+      border-color: rgba(154, 122, 42, 0.35);
+      background: rgba(154, 122, 42, 0.05);
+    }
+
+    .tl-card.cat-main:hover {
+      border-color: rgba(168, 50, 40, 0.4);
+      background: rgba(168, 50, 40, 0.07);
+    }
+
+    .tl-card.open {
+      border-color: rgba(154, 122, 42, 0.45);
+      background: rgba(154, 122, 42, 0.07);
+    }
+
+    .tl-card.cat-main.open {
+      border-color: rgba(168, 50, 40, 0.5);
+      background: rgba(168, 50, 40, 0.09);
+    }
+
+    .tl-toggle-icon {
+      position: absolute;
+      top: 0.85rem;
+      right: 0.9rem;
+      font-size: 1.1rem;
+      line-height: 1;
+      opacity: 0.35;
+      transition: opacity 0.2s, transform 0.3s;
+      font-family: 'Playfair Display', serif;
+      color: var(--gold-light);
+    }
+
+    .tl-card.open .tl-toggle-icon {
+      opacity: 0.8;
+      transform: rotate(45deg);
+    }
+
+    .tl-text {
+      padding: 0 1.5rem;
+    }
+
+    .tl-text.right {
+      text-align: right;
+    }
+
+    .tl-text.right .tl-date-badge {
+      margin-left: auto;
+    }
+
+    .tl-dot-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 1.1rem;
+    }
+
+    .tl-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--red);
+      border: 2px solid #0d0a05;
+      box-shadow: 0 0 0 2px var(--red);
+      position: relative;
+      z-index: 1;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .timeline-item:hover .tl-dot {
+      transform: scale(1.4);
+      box-shadow: 0 0 0 3px var(--gold), 0 0 12px rgba(154, 122, 42, 0.4);
+    }
+
+    .tl-title-ko {
+      font-family: 'Noto Serif KR', serif;
+      font-weight: 700;
+      font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+      margin-bottom: 0.3rem;
+      padding-right: 1.5rem;
+    }
+
+    .tl-title-en {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.78rem;
+      opacity: 0.4;
+      margin-bottom: 0;
+    }
+
+    .tl-desc {
+      font-size: 0.82rem;
+      line-height: 1.75;
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: opacity 0.35s ease, max-height 0.4s ease, margin-top 0.3s ease;
+      margin-top: 0;
+    }
+
+    .tl-desc.visible {
+      opacity: 0.7;
+      max-height: 120px;
+      margin-top: 0.6rem;
+    }
+
+    /* ── FULL-BLEED MAP SECTION ── */
+    #map-full {
+      background: #0a0805;
+      flex-direction: column;
+      padding: 0;
+      min-height: 100vh;
+    }
+
+    .map-full-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 400;
+      padding: 3rem 4rem;
+      background: linear-gradient(to bottom, rgba(10, 8, 5, 0.95) 0%, transparent 100%);
+    }
+
+    #leaflet-full {
+      width: 100%;
+      height: 100vh;
+    }
+
+    .map-legend {
+      position: absolute;
+      bottom: 3rem;
+      left: 3rem;
+      z-index: 400;
+      background: rgba(10, 8, 5, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(192, 57, 43, 0.3);
+      padding: 1.5rem;
+      max-width: 280px;
+    }
+
+    .legend-title {
+      font-family: 'Noto Serif KR', serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      color: var(--cream);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.6rem;
+      font-size: 0.78rem;
+      color: rgba(245, 240, 232, 0.7);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ── CLOSING SECTION ── */
+    #closing {
+      background: var(--bg-1);
+      color: var(--cream);
+      flex-direction: column;
+      text-align: center;
+      padding: clamp(4rem, 8vw, 8rem) 2rem;
+    }
+
+    .closing-year {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(6rem, 20vw, 15rem);
+      font-weight: 700;
+      line-height: 0.85;
+      opacity: 0.12;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+
+    .closing-content {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+    }
+
+    .closing-mansei {
+      font-family: 'Noto Serif KR', serif;
+      font-weight: 900;
+      font-size: clamp(3rem, 10vw, 7rem);
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 {
+      transition-delay: 0.1s;
+    }
+
+    .reveal-delay-2 {
+      transition-delay: 0.2s;
+    }
+
+    .reveal-delay-3 {
+      transition-delay: 0.3s;
+    }
+
+    .reveal-delay-4 {
+      transition-delay: 0.4s;
+    }
+
+    /* ── DECORATIVE DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      opacity: 0.25;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: currentColor;
+    }
+
+    .divider-diamond {
+      width: 6px;
+      height: 6px;
+      background: var(--red);
+      transform: rotate(45deg);
+      opacity: 1;
+    }
+
+    /* ── IMAGE OVERLAY SECTION ── */
+    .img-overlay-section {
+      position: relative;
+      min-height: 70vh;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .img-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      filter: grayscale(80%) sepia(30%);
+    }
+
+    .img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10, 8, 5, 0.95) 0%, rgba(10, 8, 5, 0.3) 60%, transparent 100%);
+    }
+
+    .img-caption {
+      position: relative;
+      z-index: 2;
+      padding: 3rem 4rem;
+      max-width: 700px;
+    }
+
+    /* ── PERSON CARDS ── */
+    .person-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px;
+      background: rgba(0, 0, 0, 0.1);
+      margin-top: 2rem;
+    }
+
+    .person-card {
+      background: var(--bg-2);
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .dark .person-card {
+      background: var(--bg-3);
+    }
+
+    .person-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--red);
+    }
+
+    .person-name-ko {
+      font-family: 'Noto Serif KR', serif;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .person-name-en {
+      font-size: 0.72rem;
+      opacity: 0.5;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      margin-bottom: 0.6rem;
+    }
+
+    .person-desc {
+      font-size: 0.78rem;
+      line-height: 1.65;
+      opacity: 0.7;
+    }
+
+    /* ── OPENLAYERS STYLE: PURE FLASH EFFECT (순정 오픈레이어스 플래시 효과) ── */
+    @keyframes olFlash {
+      0% {
+        transform: scale(0.1);
+        border-width: 3px;
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(6.0);
+        /* 시원하고 크게 번짐 */
+        border-width: 0.5px;
+        opacity: 0;
+        /* 완전히 부드럽게 소멸 */
+      }
+    }
+
+    .pulse-container {
+      position: relative;
+      width: 14px;
+      height: 14px;
+    }
+
+    /* 중심점 (테두리만 있는 빈 원) */
+    .pulse-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      background: transparent !important;
+      position: absolute;
+      z-index: 2;
+      box-shadow: 0 0 4px currentColor;
+    }
+
+    /* 마커가 맵에 생성되자마자 1회 작동 후 사라지는 파동 잔상 */
+    .pulse-wave {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: transparent !important;
+      border: 2px solid currentColor;
+      opacity: 0;
+      z-index: 1;
+      transform-origin: center;
+
+      /* 2.5초 동안 아주 부드럽게 퍼지다가 완전히 소멸 */
+      animation: olFlash 2.5s cubic-bezier(0.1, 0.8, 0.25, 1) forwards;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .split-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .split-layout.reverse {
+        direction: ltr;
+      }
+
+      .split-visual {
+        min-height: 350px;
+      }
+
+      .timeline-item {
+        grid-template-columns: 30px 1fr;
+      }
+
+      .timeline-item .tl-text.right {
+        text-align: left;
+      }
+
+      .timeline-item:nth-child(even) .tl-text {
+        grid-column: 2;
+      }
+
+      .timeline-item:nth-child(even) .tl-empty {
+        display: none;
+      }
+
+      .timeline-line {
+        left: 15px;
+      }
+
+      .tl-dot-wrap {
+        padding-top: 0;
+      }
+
+      .map-full-header {
+        padding: 2rem;
+      }
+
+      .map-legend {
+        left: 1rem;
+        right: 1rem;
+        max-width: none;
+        bottom: 1rem;
+      }
+
+      #nav-dots {
+        display: none;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="progress-bar"></div>
+
+  <!-- LANGUAGE TOGGLE -->
+  <div id="lang-toggle">
+    <button id="btn-ko" class="active" onclick="setLang('ko')">한국어</button>
+    <button id="btn-en" onclick="setLang('en')">ENG</button>
+  </div>
+
+  <!-- NAV DOTS -->
+  <nav id="nav-dots">
+    <div class="dot active" onclick="scrollToSection(0)" title="시작"></div>
+    <div class="dot" onclick="scrollToSection(1)" title="배경"></div>
+    <div class="dot" onclick="scrollToSection(2)" title="준비"></div>
+    <div class="dot" onclick="scrollToSection(3)" title="3월 1일"></div>
+    <div class="dot" onclick="scrollToSection(4)" title="확산"></div>
+    <div class="dot" onclick="scrollToSection(5)" title="타임라인"></div>
+    <div class="dot" onclick="scrollToSection(6)" title="지도"></div>
+    <div class="dot" onclick="scrollToSection(7)" title="인물"></div>
+    <div class="dot" onclick="scrollToSection(8)" title="의의"></div>
+  </nav>
+
+  <!-- ══════════════ HERO ══════════════ -->
+  <section id="hero" data-section="0">
+    <div class="hero-bg"></div>
+    <div class="hero-texture"></div>
+    <div class="hero-ring"></div>
+
+    <div class="hero-content">
+      <p class="hero-date">1919년 3월 1일 · March 1st, 1919</p>
+      <h1 class="hero-title-ko"><span>3</span>·<span>1</span>운동</h1>
+      <p class="hero-title-en">The March First Independence Movement</p>
+      <p class="hero-subtitle">
+        <span class="ko-text">1919년 3월 1일, 일제강점기 조선에서 일어난 전국적 독립만세운동. <br> 약 200만 명이 참가했으며, 대한민국 임시정부 수립의 직접적 계기가
+          되었다.</span>
+        <span class="en-text" style="display:none;">A nationwide independence movement in colonial Korea on March 1,
+          1919. Approximately two million people participated. It directly led to the establishment of the Korean
+          Provisional Government.</span>
+      </p>
+    </div>
+
+    <div class="scroll-cue">
+      <span>scroll</span>
+      <div class="arrow"></div>
+    </div>
+  </section>
+
+
+
+
+
+
+  <section id="s1" class="story-section" data-section="1">
+    <div class="split-layout">
+      <div class="split-text" style="background:var(--bg-1); color:var(--cream);">
+        <div class="chapter-num">01</div>
+        <p class="section-label red reveal">배경 · Background</p>
+        <h2 class="section-heading-ko reveal reveal-delay-1">
+          일제강점기의<br>통치 구조
+        </h2>
+        <p class="section-heading-en reveal reveal-delay-1">Colonial Rule, 1910–1919</p>
+        <div class="divider reveal reveal-delay-2">
+          <div class="divider-line"></div>
+          <div class="divider-diamond"></div>
+          <div class="divider-line"></div>
+        </div>
+        <div class="section-body reveal reveal-delay-2">
+          <p class="ko-text">1910년 한일병합조약으로 조선은 일제에 합병되었다.<br> 조선총독부는 헌병경찰제도를 운영하며 언론·출판·집회를 금지했고, 재판 없이 즉결처분을 집행했다.
+          </p>
+          <p class="ko-text">1919년 1월 고종 황제가 사망했다. 독살 의혹이 제기되었고, 같은 시기 파리강화회의에서 윌슨 대통령이 <strong>민족자결주의</strong>를 발표하면서
+            독립운동의 조직화가 본격화되었다.</p>
+          <p class="en-text" style="display:none;">Korea was annexed by Japan under the 1910 Japan-Korea Treaty. The
+            Government-General imposed military police rule, banning free speech, press, and assembly, and allowing
+            summary punishment without trial. Emperor Gojong's death in January 1919 — amid poisoning allegations —
+            and
+            Wilson's proclamation of self-determination at the Paris Peace Conference accelerated the organization of
+            resistance.</p>
+        </div>
+
+        <div class="pull-quote reveal reveal-delay-3">
+          <p class="pull-quote-ko">"각 민족은 스스로의 운명을 결정할 권리가 있다" — 우드로 윌슨, 1918</p>
+          <p class="pull-quote-en">"Every people has the right to determine its own destiny" — Woodrow Wilson, 1918
+          </p>
+        </div>
+
+        <div class="wilson-photo-card reveal reveal-delay-3"
+          style="margin-top: 25px; max-width: 320px; border: 1px solid rgba(216, 210, 200, 0.15); padding: 10px; background: rgba(0, 0, 0, 0.2); border-radius: 4px;">
+          <img
+            src="data:image/jpeg;base64,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"
+            alt="Woodrow Wilson (1919)"
+            style="width: 100%; height: auto; display: block; border-radius: 2px; filter: grayscale(100%) contrast(115%); opacity: 0.85; border: 1px solid rgba(216, 210, 200, 0.1);">
+        </div>
+      </div>
+
+      <div class="split-visual">
+        <div id="map-background" style="width:100%;height:100%;min-height:500px;"></div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+  <section id="s2" class="story-section dark" data-section="2">
+    <div class="split-layout reverse">
+      <div class="split-text" style="background:var(--hanji);color:var(--hanji-text);">
+        <div class="chapter-num" style="color:var(--hanji-text);">02</div>
+        <p class="section-label light reveal" style="color:var(--red);">준비 · Preparation</p>
+        <h2 class="section-heading-ko reveal reveal-delay-1">
+          거사 준비:<br>종교 연합과 선언서 인쇄
+        </h2>
+        <p class="section-heading-en reveal reveal-delay-1">Organizing the Movement</p>
+        <div class="divider reveal reveal-delay-2" style="color:var(--hanji-text)">
+          <div class="divider-line"></div>
+          <div class="divider-diamond"></div>
+          <div class="divider-line"></div>
+        </div>
+        <div class="section-body reveal reveal-delay-2">
+          <p class="ko-text">1919년 2월 8일, 도쿄 유학생 600여 명이 조선YMCA 회관에서 <strong>2·8 독립선언</strong>을 발표했다.<br>
+            이 사실이 국내에 전해지면서 국내 지도자들의 거사 준비가 가속화되었다.</p>
+          <p class="ko-text">천도교 손병희를 중심으로 기독교·불교 지도자들이 합류해 민족대표 33인을 구성했다.<br> 운동의 원칙은 세 가지였다.
+            <strong>대중화·일원화·비폭력</strong>. <br> 이후 독립선언서 2만 1,000장이 인쇄되어 3월 1일 이전 전국 각지로 배포되었다.
+          </p>
+          <p class="en-text" style="display:none;">On February 8, 1919, over 600 Korean students in Tokyo publicly
+            issued the February 8th Declaration at the Korean YMCA hall. News of this accelerated preparations at
+            home.
+            Son Byong-hui coordinated Christian and Buddhist leaders to form the 33 national representatives. Three
+            principles guided the movement: broad participation, unified command, nonviolence. 21,000 copies of the
+            Declaration were printed and distributed nationwide before March 1st.</p>
+        </div>
+
+        <div class="person-grid reveal reveal-delay-3">
+          <div class="person-card" style="background:#d8d0be;">
+            <p class="person-name-ko" style="color:var(--hanji-text);">손병희</p>
+            <p class="person-name-en">Son Byong-hui</p>
+            <p class="person-desc ko-text">천도교 교주, 민족대표 33인의 조직자</p>
+            <p class="person-desc en-text" style="display:none;">Cheondogyo leader, chief organizer of the 33
+              signatories</p>
+          </div>
+          <div class="person-card" style="background:#d8d0be;">
+            <p class="person-name-ko" style="color:var(--hanji-text);">이승훈</p>
+            <p class="person-name-en">Lee Seung-hun</p>
+            <p class="person-desc ko-text">기독교 대표, 평안도 지역 만세운동 조직</p>
+            <p class="person-desc en-text" style="display:none;">Christian leader who organized protests across
+              Pyeongan
+              province</p>
+          </div>
+          <div class="person-card" style="background:#d8d0be;">
+            <p class="person-name-ko" style="color:var(--hanji-text);">한용운</p>
+            <p class="person-name-en">Han Yong-un</p>
+            <p class="person-desc ko-text">불교 승려, 독립선언서 공약삼장 작성</p>
+            <p class="person-desc en-text" style="display:none;">Buddhist monk & poet, authored the Three Pledges of
+              the
+              Declaration</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="split-visual" style="background:var(--bg-0);">
+        <div
+          style="display:flex;flex-direction:column;justify-content:center;align-items:center;height:100%;padding:3rem;text-align:center;">
+          <div style="border:1px solid rgba(192,57,43,0.3);padding:3rem;max-width:380px;">
+            <p
+              style="font-family:'Playfair Display',serif;font-size:0.7rem;letter-spacing:0.3em;color:var(--gold-light);margin-bottom:1.5rem;opacity:0.8;">
+              독립선언서 · Declaration of Independence</p>
+            <p
+              style="font-family:'Noto Serif KR',serif;font-size:1.4rem;font-weight:700;line-height:1.8;color:var(--cream);">
+              吾等은 玆에<br>我 朝鮮의<br>獨立國임과</p>
+            <p
+              style="font-family:'Noto Serif KR',serif;font-size:1.2rem;line-height:1.8;color:var(--cream);margin-top:0.5rem;">
+              朝鮮人의<br>自主民임을<br>宣言하노라</p>
+            <div class="divider" style="color:var(--cream);margin:1.5rem 0;">
+              <div class="divider-line"></div>
+              <div class="divider-diamond"></div>
+              <div class="divider-line"></div>
+            </div>
+            <p
+              style="font-family:'Playfair Display',serif;font-style:italic;font-size:0.85rem;color:rgba(245,240,232,0.5);line-height:1.7;">
+              "We hereby declare that Korea is an independent nation and that Koreans are a self-governing people."
+            </p>
+            <p style="margin-top:1.5rem;font-size:0.7rem;letter-spacing:0.15em;color:var(--gold-light);opacity:0.6;">—
+              1919. 3. 1</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+  <section id="timeline-section" data-section="5">
+    <div class="timeline-header">
+      <p class="section-label gold reveal" style="text-align:center;">연표 · Chronology</p>
+      <h2 class="section-heading-ko reveal reveal-delay-1" style="text-align:center;color:var(--cream);">3.1운동의 발자취</h2>
+      <p class="section-heading-en reveal reveal-delay-1" style="text-align:center;color:var(--cream);">Key Moments of
+        the Movement</p>
+    </div>
+
+    <div class="timeline-track reveal">
+      <div class="timeline-line"></div>
+
+      <div class="timeline-item">
+        <div class="tl-text right">
+          <div class="tl-date-badge cat-prep">
+            <span class="badge-year">1919</span>
+            <span class="badge-day">01. 20</span>
+          </div>
+          <div class="tl-card cat-prep">
+            <span class="tl-toggle-icon">+</span>
+            <p class="tl-title-ko">손병희, 독립운동 동의</p>
+            <p class="tl-title-en">Sohn Byong-hui Joins the Cause</p>
+            <p class="tl-desc ko-text">천도교주 손병희가 교단 차원의 독립운동 참여에 공식 동의하며 조직적 준비의 첫 발이 내딛어졌다.</p>
+            <p class="tl-desc en-text" style="display:none;">Sohn Byong-hui, leader of Cheondogyo, officially endorses
+              the independence movement.</p>
+          </div>
+        </div>
+        <div class="tl-dot-wrap">
+          <div class="tl-dot"></div>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="timeline-item">
+        <div></div>
+        <div class="tl-dot-wrap">
+          <div class="tl-dot"></div>
+        </div>
+        <div class="tl-text">
+          <div class="tl-date-badge cat-prep">
+            <span class="badge-year">1919</span>
+            <span class="badge-day">02. 08</span>
+          </div>
+          <div class="tl-card cat-prep">
+            <span class="tl-toggle-icon">+</span>
+            <p class="tl-title-ko">2·8 독립선언 (도쿄)</p>
+            <p class="tl-title-en">February 8th Declaration, Tokyo</p>
+            <p class="tl-desc ko-text">도쿄 유학생 600여 명이 YMCA 회관에 집결하여 독립선언서를 낭독하고 만세를 외쳤다.</p>
+            <p class="tl-desc en-text" style="display:none;">Over 600 Korean students in Tokyo gather at the YMCA hall
+              and declare independence.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-text right">
+          <div class="tl-date-badge cat-prep">
+            <span class="badge-year">1919</span>
+            <span class="badge-day">02. 24</span>
+          </div>
+          <div class="tl-card cat-prep">
+            <span class="tl-toggle-icon">+</span>
+            <p class="tl-title-ko">3교 합작 합의</p>
+            <p class="tl-title-en">Three Religions Unite</p>
+            <p class="tl-desc ko-text">천도교·기독교·불교가 비폭력 독립선언 원칙 아래 연합하여 민족 대표단 구성에 합의했다.</p>
+            <p class="tl-desc en-text" style="display:none;">Cheondogyo, Christianity, and Buddhism agree to jointly
+              lead a non-violent declaration.</p>
+          </div>
+        </div>
+        <div class="tl-dot-wrap">
+          <div class="tl-dot"></div>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="timeline-item">
+        <div></div>
+        <div class="tl-dot-wrap">
+          <div class="tl-dot"></div>
+        </div>
+        <div class="tl-text">
+          <div class="tl-date-badge cat-prep">
+            <span class="badge-year">1919</span>
+            <span class="badge-day">02. 27</span>
+          </div>
+          <div class="tl-card cat-prep">
+            <span class="tl-toggle-icon">+</span>
+            <p class="tl-title-ko">독립선언서 21,000매 인쇄</p>
+            <p class="tl-title-en">21,000 Copies Printed</p>
+            <p class="tl-desc ko-text">천도교 운영 보성사 인쇄소에서 독립선언서 2만 1천 매를 극비리에 인쇄하여 전국 배포를 준비했다.</p>
+            <p class="tl-desc en-text" style="display:none;">The Boseongsa print shop secretly prints 21,000 copies of
+              the Declaration for nationwide distribution.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-text right">
+          <div class="tl-date-badge cat-main">
+            <span class="badge-year">1919</span>
+            <span class="badge-day">03. 01</span>
+          </div>
+          <div class="tl-card cat-main">
+            <span class="tl-toggle-icon">+</span>
+            <p class="tl-title-ko">3·1운동 거사</p>
+            <p class="tl-title-en">March First — The Day</p>
+            <p class="tl-desc ko-text">오후 2시, 태화관에서 민족대표 33인이 선언식을 거행했다. 동시에 탑골공원에서 독립선언서가 낭독되고 시위 군중이 시내 전역으로 확산됐다.</p>
+            <p class="tl-desc en-text" style="display:none;">At 2pm, the 33 representatives convene at Taehwagwan.
+              Simultaneously, the Declaration is read aloud at Tapgol Park and crowds surge across the city.</p>
+          </div>
+        </div>
+        <div class="tl-dot-wrap">
+          <div class="tl-dot"
+            style="background:var(--red);box-shadow:0 0 0 3px var(--red),0 0 16px rgba(168,50,40,0.5);width:18px;height:18px;">
+          </div>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="timeline-item">
+        <div></div>
+        <div class="tl-dot-wrap">
+          <div class="tl-dot"></div>
+        </div>
+        <div class="tl-text">
+          <div class="tl-date-badge cat-spread">
+            <span class="badge-year">1919</span>
+            <span class="badge-day">03. 05</span>
+          </div>
+          <div class="tl-card cat-spread">
+            <span class="tl-toggle-icon">+</span>
+            <p class="tl-title-ko">남대문역 대규모 시위</p>
+            <p class="tl-title-en">Mass Protest at Namdaemun Station</p>
+            <p class="tl-desc ko-text">남대문역 광장에 1만 명 이상의 군중이 집결하여 고종 국장일을 전후로 역대 최대 규모의 가두 시위를 전개했다.</p>
+            <p class="tl-desc en-text" style="display:none;">Over 10,000 gather at Namdaemun Station Plaza in the
+              largest street protest yet, coinciding with Emperor Gojong's state funeral.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="tl-text right">
+          <div class="tl-date-badge cat-spread">
+            <span class="badge-year">1919</span>
+            <span class="badge-day">03. 22</span>
+          </div>
+          <div class="tl-card cat-spread">
+            <span class="tl-toggle-icon">+</span>
+            <p class="tl-title-ko">종로 상가 전면 철시</p>
+            <p class="tl-title-en">Jongno Merchants Strike</p>
+            <p class="tl-desc ko-text">종로 상가 전체가 문을 닫고 철시를 단행하며 독립 시위에 동참했다. 경제적 저항의 상징적 장면이었다.</p>
+            <p class="tl-desc en-text" style="display:none;">All shops along Jongno close in solidarity, marking a
+              pivotal act of economic resistance.</p>
+          </div>
+        </div>
+        <div class="tl-dot-wrap">
+          <div class="tl-dot"></div>
+        </div>
+        <div></div>
+      </div>
+
+      <div class="timeline-item">
+        <div></div>
+        <div class="tl-dot-wrap">
+          <div class="tl-dot" style="background:var(--gold);box-shadow:0 0 0 3px var(--gold);width:16px;height:16px;">
+          </div>
+        </div>
+        <div class="tl-text">
+          <div class="tl-date-badge cat-result">
+            <span class="badge-year">1919</span>
+            <span class="badge-day">04. 23</span>
+          </div>
+          <div class="tl-card cat-result">
+            <span class="tl-toggle-icon">+</span>
+            <p class="tl-title-ko">한성정부 선포</p>
+            <p class="tl-title-en">Hanseong Provisional Government</p>
+            <p class="tl-desc ko-text">서린동 봉춘관에서 전국 13도 대표 25인이 국민대회를 열고 한성정부를 선포하며 독립운동의 구심점을 마련했다.</p>
+            <p class="tl-desc en-text" style="display:none;">25 representatives from all 13 provinces convene and
+              proclaim the Hanseong Provisional Government.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="s3" class="story-section" data-section="3">
+    <div class="split-layout">
+      <div class="split-text" style="background:var(--hanji); color:var(--hanji-text);">
+        <div class="chapter-num">03</div>
+        <p class="section-label red reveal">거사 · The Day</p>
+        <h2 class="section-heading-ko reveal reveal-delay-1">
+          1919년 3월 1일,<br>오후 2시
+        </h2>
+        <p class="section-heading-en reveal reveal-delay-1">March 1st, 1919 — 2:00 PM</p>
+        <div class="divider reveal reveal-delay-2" style="color:var(--hanji-text)">
+          <div class="divider-line"></div>
+          <div class="divider-diamond"></div>
+          <div class="divider-line"></div>
+        </div>
+        <div class="section-body reveal reveal-delay-2">
+          <p class="ko-text"><strong>태화관</strong>에서 민족대표 33인은 오후 2시 독립선언서를 낭독하고 만세를 삼창했다. 이후 스스로 경찰에 연락해 체포되었다. 시위
+            현장과의
+            충돌을 피하기 위한 사전 합의였다.</p>
+          <p class="ko-text">같은 시각 <strong>탑골공원</strong>에는 수천 명의 학생과 시민이 모였다. 민족대표가 나타나지 않자, 경신학교 학생
+            <strong>정재용</strong>이 팔각정에 올라 독립선언서를 낭독했다. 이후 군중은 태극기를 들고 서울 시내를 행진했다.
+          </p>
+          <p class="en-text" style="display:none;">At Taehwagwan Restaurant, the 33 representatives read the
+            Declaration
+            at 2:00 PM, shouted "Manse" three times, then contacted police themselves to be arrested — a pre-arranged
+            plan to avoid clashing with protesters. At the same time, thousands had gathered at Tapgol Park. When the
+            representatives did not appear, student Jeong Jae-yong climbed the pavilion and read the Declaration
+            aloud.
+            The crowd then marched through central Seoul carrying Taegukgi flags.</p>
+        </div>
+        <div class="pull-quote reveal reveal-delay-3">
+          <p class="pull-quote-ko">"대한 독립 만세!" — 1919. 3. 1, 탑골공원</p>
+          <p class="pull-quote-en">"Manse! Long live Korean independence!" — Tapgol Park, March 1, 1919</p>
+        </div>
+      </div>
+
+      <div class="split-visual">
+        <div id="map-seoul" style="width:100%;height:100%;min-height:500px;"></div>
+      </div>ㄹ
+    </div>
+  </section>
+
+  <section id="s4" class="story-section" data-section="4" style="background:var(--hanji);">
+    <div style="width:100%;padding:clamp(4rem,8vw,8rem) clamp(2rem,8vw,8rem);">
+      <div style="max-width:900px;margin:0 auto;">
+        <p class="section-label reveal" style="color:var(--red);">확산과 탄압 · Spread & Suppression</p>
+        <h2 class="section-heading-ko reveal reveal-delay-1" style="color:var(--hanji-text);">시위 확산과 일제의 탄압</h2>
+        <p class="section-heading-en reveal reveal-delay-1" style="color:var(--hanji-text);">Spread and Suppression
+        </p>
+        <div class="divider reveal reveal-delay-2" style="color:var(--hanji-text)">
+          <div class="divider-line"></div>
+          <div class="divider-diamond"></div>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="section-body reveal reveal-delay-2" style="color:var(--hanji-text);columns:2;column-gap:3rem;">
+          <p class="ko-text">시위는 서울에서 평양, 의주, 함흥으로 확산되었고, 이후 농촌 지역까지 이어졌다. 3월 한 달간 전국 1,542개 지역에서 시위가 발생했으며, 학생 외에도
+            농민·상인·종교인이 참여했다.</p>
+          <p class="ko-text">일제는 군경을 동원해 시위를 강제 진압했다. 4월 15일, 경기도 화성 <strong>제암리</strong>에서 일본 군경은 주민 수십 명을 교회에 집결시킨 뒤
+            문을 잠그고 방화했다. 캐나다 선교사 프랭크 스코필드가 현장을 기록해 국제 사회에 알렸다.</p>
+          <p class="en-text" style="display:none;">Protests spread from Seoul to Pyongyang, Uiju, and Hamheung, then
+            to
+            rural areas. Over March alone, demonstrations occurred in 1,542 locations nationwide, involving not only
+            students but farmers, merchants, and clergy. Japanese authorities responded with military force. On April
+            15, in Jeam-ri, Hwaseong, troops gathered dozens of villagers into a church, locked the doors, and set it
+            on
+            fire. Canadian missionary Frank Schofield documented the massacre and brought it to international
+            attention.
+          </p>
+        </div>
+
+        <div class="stats-grid reveal reveal-delay-3" style="background:rgba(168,50,40,0.15);">
+          <div class="stat-block" style="background:#d8d0be;">
+            <span class="stat-num">7,509</span>
+            <span class="stat-label-ko" style="color:var(--hanji-text);">희생자 (사망)</span>
+            <span class="stat-label-en" style="color:var(--hanji-text);">Killed</span>
+          </div>
+          <div class="stat-block" style="background:#d8d0be;">
+            <span class="stat-num">15,961</span>
+            <span class="stat-label-ko" style="color:var(--hanji-text);">부상자</span>
+            <span class="stat-label-en" style="color:var(--hanji-text);">Wounded</span>
+          </div>
+          <div class="stat-block" style="background:#d8d0be;">
+            <span class="stat-num">46,948</span>
+            <span class="stat-label-ko" style="color:var(--hanji-text);">검거자</span>
+            <span class="stat-label-en" style="color:var(--hanji-text);">Arrested</span>
+          </div>
+        </div>
+        <p style="font-size:0.7rem;opacity:0.5;margin-top:0.5rem;text-align:right;color:var(--hanji-text);"
+          class="ko-text">* 조선총독부 공식 기록 기준 — 실제 수치는 훨씬 많을 것으로 추정됩니다</p>
+        <p style="font-size:0.7rem;opacity:0.5;margin-top:0.5rem;text-align:right;color:var(--hanji-text);"
+          class="en-text" style="display:none;">* Per Japanese Government-General records — actual figures estimated
+          to
+          be far higher</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="map-full" data-section="6">
+    <div class="map-full-header">
+      <p class="section-label light" style="color:var(--gold-light);">시위 확산 지도 · Protest Map</p>
+      <h2 class="section-heading-ko" style="color:var(--cream);">만세의 물결, 전국으로</h2>
+      <p class="section-heading-en" style="color:var(--cream);">The Wave of Independence Sweeps the Nation</p>
+    </div>
+
+    <div id="leaflet-full"></div>
+
+    <div class="map-legend">
+      <p class="legend-title">구분</p>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#c0392b;"></div>
+        <span class="ko-text">주요 시위 발생지 (3월 1일)</span>
+        <span class="en-text" style="display:none;">Major protests (March 1st)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#e67e22;"></div>
+        <span class="ko-text">확산 시위지 (3~4월)</span>
+        <span class="en-text" style="display:none;">Spread protests (Mar–Apr)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#13d644;"></div>
+        <span class="ko-text">탄압·학살 발생지</span>
+        <span class="en-text" style="display:none;">Massacres / suppression sites</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="s7" class="story-section" data-section="7" style="background:var(--bg-2);">
+    <div style="width:100%;padding:clamp(4rem,8vw,8rem) clamp(2rem,8vw,8rem);">
+      <div style="max-width:1000px;margin:0 auto;">
+        <p class="section-label red reveal">주요 인물 · Key Figures</p>
+        <h2 class="section-heading-ko reveal reveal-delay-1" style="color:var(--cream);">역사를 만든 사람들</h2>
+        <p class="section-heading-en reveal reveal-delay-1">Those Who Made History</p>
+        <div class="divider reveal reveal-delay-2" style="color:var(--cream)">
+          <div class="divider-line"></div>
+          <div class="divider-diamond"></div>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="person-grid reveal reveal-delay-2"
+          style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+          <div class="person-card" style="background:var(--bg-2);">
+            <p class="person-name-ko">유관순</p>
+            <p class="person-name-en">Yu Gwan-sun</p>
+            <p class="person-desc ko-text">이화학당 학생. 아우내 장터 시위를 이끌다 체포, 서대문형무소에서 18세의 나이로 순국. "대한독립만세"를 외치며 끝까지 굴복하지
+              않았다.
+            </p>
+            <p class="person-desc en-text" style="display:none;">Ewha student who led Aunae protests, arrested and
+              martyred at 18 in Seodaemun Prison. Refused to surrender until her last breath.</p>
+          </div>
+          <div class="person-card" style="background:var(--bg-2);">
+            <p class="person-name-ko">손병희</p>
+            <p class="person-name-en">Son Byong-hui</p>
+            <p class="person-desc ko-text">천도교 3대 교주. 종교·계층을 초월한 민족 연대를 이끌며 3.1운동의 핵심 설계자 역할을 했다.</p>
+            <p class="person-desc en-text" style="display:none;">Third patriarch of Cheondogyo, master organizer who
+              united religious and social groups across Korea.</p>
+          </div>
+          <div class="person-card" style="background:var(--bg-2);">
+            <p class="person-name-ko">정재용</p>
+            <p class="person-name-en">Jeong Jae-yong</p>
+            <p class="person-desc ko-text">경신학교 학생. 탑골공원 팔각정에서 독립선언서를 낭독하며 3월 1일 역사적 행진의 불을 당겼다.</p>
+            <p class="person-desc en-text" style="display:none;">Gyeongsin School student who climbed the Tapgol
+              octagonal pavilion and read the Declaration aloud, igniting the march.</p>
+          </div>
+          <div class="person-card" style="background:var(--bg-2);">
+            <p class="person-name-ko">프랭크 스코필드</p>
+            <p class="person-name-en">Frank Schofield</p>
+            <p class="person-desc ko-text">캐나다 출신 선교사·수의사. 제암리 학살을 사진으로 기록해 국제사회에 일제의 만행을 알린 "34번째 민족대표".</p>
+            <p class="person-desc en-text" style="display:none;">Canadian missionary who photographed the Jeam-ri
+              massacre and exposed Japanese atrocities to the world — Korea's "34th representative."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="closing" data-section="8">
+    <div class="closing-year">1919</div>
+    <div class="closing-content">
+      <p class="section-label light reveal" style="text-align:center;color:var(--gold-light);">역사적 의의 · Legacy</p>
+      <div class="closing-mansei reveal reveal-delay-1" style="white-space:nowrap; font-size:clamp(3rem,8vw,7rem);">
+        대한독립만세
+      </div>
+
+
+      <div class="divider reveal reveal-delay-2" style="color:var(--cream);max-width:300px;margin:0 auto 2.5rem;">
+        <div class="divider-line"></div>
+        <div class="divider-diamond"></div>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="section-body reveal reveal-delay-3"
+        style="text-align:left;background:rgba(0,0,0,0.25);padding:2rem;border:1px solid rgba(245,240,232,0.15);">
+        <p class="ko-text">3.1운동은 이후 세 가지 결과를 낳았다. 첫째, 1919년 4월 상하이에서 <strong>대한민국 임시정부</strong>가 수립되었다. 둘째, 일제는 통치
+          방식을
+          헌병경찰제(무단통치)에서 보통경찰제(문화통치)로 전환했다. 셋째, 중국의 5·4운동(1919), 인도의 비폭력 운동 등 아시아 독립운동에 영향을 미쳤다. 대한민국 헌법 전문은 3.1운동을 건국의
+          정신적 기원으로 명시하고 있다.</p>
+        <p class="en-text" style="display:none;">The movement produced three concrete outcomes. First, the Korean
+          Provisional Government was established in Shanghai in April 1919. Second, Japan replaced military police
+          rule
+          with civilian administration. Third, it influenced independence movements across Asia, including China's May
+          Fourth Movement and India's nonviolent resistance. The preamble of the current South Korean Constitution
+          explicitly cites the March First Movement as a founding principle of the Republic.</p>
+      </div>
+
+      <div class="stats-grid reveal reveal-delay-4" style="margin-top:2rem;background:rgba(255,255,255,0.1);">
+        <div class="stat-block" style="background:rgba(0,0,0,0.3);">
+          <span class="stat-num" style="color:var(--gold-light);">1,542</span>
+          <span class="stat-label-ko">시위 발생 지역 수</span>
+          <span class="stat-label-en">Protest locations</span>
+        </div>
+        <div class="stat-block" style="background:rgba(0,0,0,0.3);">
+          <span class="stat-num" style="color:var(--gold-light);">200만+</span>
+          <span class="stat-label-ko">시위 참가 인원</span>
+          <span class="stat-label-en">Participants</span>
+        </div>
+        <div class="stat-block" style="background:rgba(0,0,0,0.3);">
+          <span class="stat-num" style="color:var(--gold-light);">33</span>
+          <span class="stat-label-ko">민족대표</span>
+          <span class="stat-label-en">National Representatives</span>
+        </div>
+      </div>
+
+      <p style="margin-top:3rem;font-size:0.75rem;opacity:0.4;letter-spacing:0.15em;" class="reveal reveal-delay-4">
+        매년 3월 1일 · Observed every March 1st as a national holiday in Korea
+      </p>
+    </div>
+  </section>
+
+
+  <script>
+    // ─────────────────────────────────────────
+    // LANGUAGE TOGGLE
+    // ─────────────────────────────────────────
+    let currentLang = 'ko';
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.getElementById('btn-ko').classList.toggle('active', lang === 'ko');
+      document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('.ko-text').forEach(el => {
+        el.style.display = lang === 'ko' ? '' : 'none';
+      });
+      document.querySelectorAll('.en-text').forEach(el => {
+        el.style.display = lang === 'en' ? '' : 'none';
+      });
+    }
+
+    // ─────────────────────────────────────────
+    // SCROLL PROGRESS
+    // ─────────────────────────────────────────
+    window.addEventListener('scroll', () => {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      document.getElementById('progress-bar').style.width = (scrolled / total * 100) + '%';
+      updateDots();
+    });
+
+    // ─────────────────────────────────────────
+    // NAV DOTS
+    // ─────────────────────────────────────────
+    const sections = document.querySelectorAll('section[data-section]');
+    const dots = document.querySelectorAll('.dot');
+
+    function updateDots() {
+      const mid = window.innerHeight / 2;
+      sections.forEach((sec, i) => {
+        const rect = sec.getBoundingClientRect();
+        if (rect.top <= mid && rect.bottom >= mid) {
+          dots.forEach(d => d.classList.remove('active'));
+          if (dots[i]) dots[i].classList.add('active');
+        }
+      });
+    }
+
+    function scrollToSection(i) {
+      sections[i]?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ─────────────────────────────────────────
+    // REVEAL ON SCROLL
+    // ─────────────────────────────────────────
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('visible');
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // ─────────────────────────────────────────
+    // LEAFLET — Paris Peace Conference Map (Section 1)
+    // ─────────────────────────────────────────
+    function initMapBackground() {
+      const mapId = 'map-background';
+      const mapElement = document.getElementById(mapId);
+      if (!mapElement) return;
+
+      // 프랑스 파리를 중심으로 전 세계가 살짝 보이는 줌 레벨(4~5) 설정
+      const map = L.map(mapId, {
+        center: [48.8566, 2.3522], // 프랑스 파리 좌표
+        zoom: 4,
+        zoomControl: false,
+        scrollWheelZoom: false,
+        dragging: true, // 사용자가 이동해볼 수 있게 활성화
+        attributionControl: false
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© CartoDB'
+      }).addTo(map);
+
+      // 파리강화회의 장소 마커 (오픈레이어스 스타일 파동 적용)
+      const parisColor = '#b8922e'; // 역사적 전환점을 뜻하는 골드/오렌지 톤
+
+      const createParisIcon = (color) => L.divIcon({
+        className: '',
+        html: `
+      <div class="pulse-container" style="color: ${color};">
+        <div class="pulse-dot" style="width:16px; height:16px; border:2px solid ${color};"></div>
+        <div class="pulse-wave" style="width:16px; height:16px; border:2px solid ${color}; animation: mapPulseOnce 4s infinite cubic-bezier(0.1, 0.8, 0.25, 1);"></div>
+      </div>
+    `,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+
+      L.marker([48.8566, 2.3522], { icon: createParisIcon(parisColor) })
+        .addTo(map)
+        .bindTooltip(`
+      <div style="font-family:'Noto Serif KR'; font-size:12px; padding:3px;">
+        <b>파리강화회의 (1919)</b><br>
+        <span style="color:#aaa;">우드로 윌슨의 민족자결주의 발표</span>
+      </div>
+    `, { permanent: true, direction: 'top', className: 'map-tooltip', offset: [0, -10] });
+    }
+
+    // ─────────────────────────────────────────
+    // LEAFLET — Seoul detail map (Section 3) — REAL DATA
+    // ─────────────────────────────────────────
+    function initMapSeoul() {
+      const map = L.map('map-seoul', {
+        center: [37.567, 126.978],
+        zoom: 15,
+        zoomControl: false,
+        scrollWheelZoom: false,
+        attributionControl: false
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© CartoDB'
+      }).addTo(map);
+
+      // ── Real data from uploads ──
+      const PLACES = [{ "id": "11100550_1549610203963", "active": "Y", "name": "공덕리", "subcat": "시위장소", "x": 126.951032569, "y": 37.543981621, "type": 1, "color": "#0000FF", "desc": "23일에는 밤에는 공덕리, 동막 일대에서 시위가 있었다." }, { "id": "start_13", "active": "Y", "name": "탑골공원", "subcat": "3.1운동 준비", "x": 126.988588677, "y": 37.571007281, "type": 1, "color": "#0000FF", "desc": "\"- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류: 3·1운동 \n- 종류: 기타(공원) \n- 상태: 부분변형 / 본래는 천자(天子: 황제)의 나라 대한제국을 상징하는 원형의 공원이었으나, 해방 후 서남편의 도서관 건물 등을 흡수하여 지금의 모습으로 바뀌었다. \n- 정의: 1919년 3월 1일 수천 명의 학생과 시민들이 운집한 가운데 독립선언식을 거행한 곳\"" }, { "id": "11100550_1549610049269", "active": "Y", "name": "합정리", "subcat": "시위장소", "x": 126.911114002, "y": 37.546485219, "type": 1, "color": "#0000FF", "desc": "합정리에서 30여 명이 집합하여 시위를 벌이다가 중국인 가옥을 파괴하는 사건이 있었다." }, { "id": "11100550_1549611295122", "active": "Y", "name": "청량리", "subcat": "시위장소", "x": 127.053678418, "y": 37.588221327, "type": 1, "color": "#0000FF", "desc": "3월 5일 청량리에서 반우식 읍소 사건이 있었다. 유교 상례에서 반우식이란 반우제를 가르키는 것으로 망자의 장례를 치르고 집에 돌아와서 망자의 영혼을 맞아들이는 제사를 뜻한다, 고종의 장례도 국상에 준하여 치루어졌기 때문에 경성에서 홍릉으로 향하는 청량리 부근에서 반우식이 치루어졌고 여기에는 지방에서 상경한 유림들이 운집했다.\n3월 5일 청량리에서 순종을 맞이한 유생들은 한편으로 복벽주의적 인식을 공유하면서도 '국왕을 향한 상서'라는 전통적 방식의 고수와 '대중을 향한 호소'라는 새로운 방식의 모색으로 갈라지는 모습을 보였다. 이런 분화는 식민지시기 유교, 유림의 행동 양태가 보여줄 두 가지 방향성을 예고하는 것이었다." }, { "id": "11100550_1548916365185", "active": "Y", "name": "프랑스영사관", "subcat": "3.1운동 중요지점", "x": 126.964794325, "y": 37.561565433, "type": 1, "color": "#0000FF", "desc": "" }, { "id": "11100550_1548916467131", "active": "Y", "name": "대한문 앞", "subcat": "3.1운동 중요지점", "x": 126.976501633, "y": 37.565075042, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n\n- 운동계열분류: 3·1운동 \n\n- 종류: 거리 \n\n- 상태: 부분변형 / 대한문 앞에서 현 서울광장 일부를 포함하는 거리인데, 현재는 도로 확장으로 당시의 모습이 많이 바뀌었다. \n\n- 정의: 1919년 3월 1일 오후 3시경 수많은 학생과 시민들이 운집한 가운데 독립연설회를 개최하고 만세시위를 벌인 곳 \n\n" }, { "id": "3.1운동 이동경로 기준점_3", "active": "Y", "name": "구미공사관", "subcat": "3.1운동 중요지점", "x": 126.972938418, "y": 37.567040123, "type": 1, "color": "#0000FF", "desc": "구미공사관" }, { "id": "11100550_1548916279022", "active": "Y", "name": "독립문", "subcat": "3.1운동 중요지점", "x": 126.959554831, "y": 37.572417161, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 등급분류 제외(항일운동) \n\n- 운동계열분류: 한말구국운동 \n\n- 종류: 기타(석문) \n\n- 상태: 부분변형 / 1979년 성산대로 공사로 사직터널과 금화터널을 잇는 고가도로가 놓이면서 원 위치에서 서북쪽으로 70m 떨어진 지점으로 옮겨져 지금에 이르고 있다. 길 한복판 원 위치에는 '독립문지, 이전일자 1979.7.13. 서울특별시장'이라고 새긴 기념동판이 묻혀 있다. \n\n- 정의: 독립협회가 조선이 청국으로부터 자주 독립한 사실을 내외에 알리기 위해 사대외교의 표상인 영은문을 헐고 그 자리에 세운 석문이 있는 곳 \n\n" }, { "id": "11100550_1549610519914", "active": "Y", "name": "동막(추정)", "subcat": "시위장소", "x": 126.942672373, "y": 37.544245672, "type": 1, "color": "#0000FF", "desc": "동막 일대에서는 26일에도 밤 8~9시 수백 명의 군중이 만세를 부르는 등 시위가 있었다. 동막의 '불온한' 기운은 4월초까지 이어졌다. 조선주차군사령부의 보고에 의하면 경성 시내는 표면상 평온을 되찾은 가운데 동막에서는 임시군용전화선을 절단하는 사건이 발생하기도 했다." }, { "id": "11100550_1549610860968", "active": "Y", "name": "이태원리", "subcat": "시위장소", "x": 126.994958066, "y": 37.532280812, "type": 1, "color": "#0000FF", "desc": "25일에는 '이태원리 내 고지' 에서 수십 명의 주민이 시위를 하다가 해산되었다. 이 경우는 경찰이나 헌병이 해산시킨 것이 아니라 구장 이홍순이 해산의 주체였던 점이 눈에 띈다." }, { "id": "start_01", "active": "Y", "name": "중앙고보 숙직실 터", "subcat": "3.1운동 준비", "x": 126.986965323, "y": 37.583145868, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류:3·1운동 \n- 종류: 건물 \n- 상태: 멸실 / 현재 그 자리에 기념비가 세워져 있다. 교정 동북쪽 담장 가에 당시 숙직실 모형을 ‘삼일기념관’이라는 이름으로 복원해 놓았다. \n- 정의: 동경유학생 송계백이 현상윤·송진우와 만나 2·8독립선언서를 전달하고, 3·1운동의 도화선을 놓은 곳" }, { "id": "11100550_1549610170386", "active": "Y", "name": "동막상리", "subcat": "시위장소", "x": 126.942507678, "y": 37.544654647, "type": 1, "color": "#0000FF", "desc": "동막상리 관란교 부근에서는 저녁 7시경 500여 명의 군중이 만세 시위를 벌였다. 주동자는 박인희라고 하며 임응철이라는 사람도 같이 체포되었다." }, { "id": "3.1운동 이동경로 기준점_4", "active": "Y", "name": "이화학당", "subcat": "3.1운동 중요지점", "x": 126.971378667, "y": 37.565829852, "type": 1, "color": "#0000FF", "desc": "이화학당" }, { "id": "11100550_1548980699765", "active": "Y", "name": "용산 조선총독부 인쇄소", "subcat": "3.1운동 중요지점", "x": 126.971169162, "y": 37.526140415, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n\n- 운동계열분류: 3·2운동 \n\n- 종류: 건물 \n\n- 상태: 멸실 / 현재 KT 원효지사와 KT 자산운용센터 등이 들어서 있다. \n\n- 정의: 1919년 3월 8일 밤 서울지역 최초의 노동자 파업·만세시위가 일어난 곳 \n\n" }, { "id": "start_10", "active": "Y", "name": "선은전광장 3·1운동 만세시위지", "subcat": "시위장소", "x": 126.9812614, "y": 37.5617798, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류: 3·1운동 \n- 종류: 거리 \n- 상태: 부분변형 / 일부 모습이 바뀌기는 했지만, 대체로 당시의 원형을 유지하고 있다. 현재 한국은행 화폐금융박물관으로 사용되고 있다. \n- 정의: 1919년 3월 1일 독립만세를 부르며 남산 조선총독부를 향해 행진하던 수천 명의 시위대가 모여 독립만세시위를 벌인 곳" }, { "id": "11100550_1549611000576", "active": "Y", "name": "돈암리", "subcat": "시위장소", "x": 127.017906336, "y": 37.597914488, "type": 1, "color": "#0000FF", "desc": "27일에도 청량리 부근에서 500여 명, 돈암리에서 50여 명이 시위를 이어갔다." }, { "id": "start_03", "active": "Y", "name": "손병희 집터", "subcat": "3.1운동 준비", "x": 126.984953241, "y": 37.580108588, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류: 3·1운동 \n- 종류: 가옥 \n- 상태: 멸실 / 현재 필지가 분할된 상태로, 청남한의원과 북촌박물관 등이 들어서 있다. \n- 정의: 3·1운동 거사 전날인 1919년 2월 28일 독립선언서에 서명한 민족대표들이 상견례를 겸해 모여 독립선언식 장소와 절차 등에 대해 의견을 나눈 곳" }, { "id": "11100550_1548916247143", "active": "Y", "name": "종로네거리", "subcat": "3.1운동 중요지점", "x": 126.976999919, "y": 37.570215737, "type": 1, "color": "#0000FF", "desc": "" }, { "id": "11100550_1549611224804", "active": "Y", "name": "왕십리", "subcat": "시위장소", "x": 127.029985614, "y": 37.564654316, "type": 1, "color": "#0000FF", "desc": "23일은 경성 부근 곳곳에서 만세 시위가 동시에 벌어진 날이다. 왕십리에서도 홍광옥 등 다수의 군중이 밤에 산에서 \"조선 독립 만세\"를 외치며 시위를 벌였다, 왕십리 부근의 산이라면 아마도 응봉산으로 생각된다. 밤에 산에서 (횃불을 들고) 시위를 벌이는 이른바 '산상 시위'형태는 농촌 지역에서 많이 보이는 시위방식이다. 왕십리 산상 시위는 경성 부든에서는 거의 유일한 산상 시위이다. 왕십리에서는 26일에도 다시 150여 명의 군중이 독립 만세를 부르다가 해산당했다." }, { "id": "11100550_1549611956605", "active": "Y", "name": "독도면사무소", "subcat": "시위장소", "x": 127.046192016, "y": 37.539502059, "type": 1, "color": "#0000FF", "desc": "독도면에서는 3월 12일, 26일 대략 두 차례 정도 시위가 일어났다. 흥미롭게도 두 차례 시위는 학생 주도의 비폭력 시위와 민중 중심의 폭력 시위로 전형적인 대비 양상을 보인다. 이런 가운데 26일네는 경성 부근 다른 면.리에서는 찾아보기 힘든 격렬한 시위가 일어났다. 이에 대해 경기도장관 보고에 의하면 약 2천여 명의 주민이 독도면 사무소를 습격하여 투석을 하기도 했다. 시위가 이렇게 격화되자 헌병의 발포까지 있었으며, 사망자 1명과 부상자 5, 6명이 나왔다. 독도면사무소는 서독도리에 위치했는데 시위 군중이 500여 명에서 많게는 2천여라고 하는 것으로 보아 이들은 동.서독도리 주민뿐 아니라 부근 농촌부에서 모여든 주민이 다수였을 것으로 여겨진다." }, { "id": "start_09", "active": "Y", "name": "이종일 집터 - 3·1독립선언서 배포지", "subcat": "3.1운동 준비", "x": 126.98644387, "y": 37.5749684, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류: 3·1운동 \n- 종류: 가옥 \n- 상태: 멸실 / 현재 ‘세계 어린이운동 발상지’ 기념비가 세워져 있다. \n- 정의: 3·1운동 당시 보성사에서 인쇄한 독립선언서를 비밀리에 운반해 각처로 배포한 곳" }, { "id": "11100550_1549610669115", "active": "Y", "name": "영등포면 영등포", "subcat": "시위장소", "x": 126.902933686, "y": 37.51716751, "type": 1, "color": "#0000FF", "desc": "시흥군 영등포면, 북면은 이후 경성부에 편입된 지역이며 경인선과 경부선의 분기점인 영등포역이 입지한 철도 교통의 요지이기는 했지만, 거개가 한강 이남으로 경성부와는 공간적으로 격절된 지역으로 볼 수 있다. 따라서 고양군의 면.리에 비해 전반적으로 만세 시위가 늦게 시작되었다. 게다가 영등포면은 1919년 현재 일본인 인구가 거의 1/3에 달하는 지정면으로서 만세 시위가 활발하게 벌어질 만한 지역이 아니었다. 그럼에도 불구하고 영등포면에서도 경성 부근에서 일제히 만세 시위가 일어난 23일에는 시위가 있었던 것으로 확인된다. 그리고 관내 조선인 상점의 절대 다수도 철시 상태이다가 4월 1일 고양군수 및 경찰의 회유를 받고 신청서를 제출, 다시 개점했다." }, { "id": "start_06", "active": "Y", "name": "보신각 앞 3·1운동 만세시위지/한성정부 선포지", "subcat": "3.1운동 준비", "x": 126.983337934, "y": 37.569865621, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류: 3·1운동 \n- 종류: 거리 \n- 상태: 부분변형 / 현재 보신각은 도로확장으로 본래 위치에서 서남편으로 약 40m 물러나 옮겨진 상태이다. \n- 정의: 3·1독립만세시위의 중심지이자, 1919년 4월 23일 세칭 ‘한성정부’의 수립을 알리는 시위가 벌어진 곳" }, { "id": "11100550_1549610911552", "active": "Y", "name": "한강리", "subcat": "시위장소", "x": 127.010076886, "y": 37.530115634, "type": 1, "color": "#0000FF", "desc": "24, 25일에는 한강변 일대에서 시위가 일어났다. 만세 시위가 점차 외곽으로 확산되는 모습을 확인할 수 있다. 24일 한강리에서 약 200여 명의 군중이 만세 시위를 하다가 헌병의 \"설유\"로 해산했다." }, { "id": "11100550_1548982516768", "active": "Y", "name": "연희전문학교", "subcat": "시위장소", "x": 126.936741345, "y": 37.560282874, "type": 1, "color": "#0000FF", "desc": "연희면에서 3.1운동은 크게 3월1일 당일의 연희전문학교 학생 시위와 23일 면민 시위를 들 수 있다. 그리고 연희면을 무대로 한 시위는 23일에 일어났다. 3월 23일은 연희면뿐 아니라 경성 부근의 여러 면.리에서 일제히 만세 시위가 벌어졌다." }, { "id": "11100550_1548921863549", "active": "Y", "name": "동아연초회사", "subcat": "3.1운동 중요지점", "x": 126.984841387, "y": 37.562494936, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n\n- 운동계열분류: 3·1운동 \n\n- 종류: 건물 \n\n- 상태: 멸실 / 현재 세운스퀘어가 들어서 있다.\n\n- 정의: 1919년 3월 9일 조선인 직공 5백여 명이 파업 만세시위를 벌인 곳 \n\n" }, { "id": "11100550_1549610830585", "active": "Y", "name": "서빙고리(권원주)", "subcat": "시위장소", "x": 126.993638331, "y": 37.523545013, "type": 1, "color": "#0000FF", "desc": "3월 22일 서빙고에서는 일종의 만세 시위 미수 사건도 있었다. 판결문에 의해 사건의 개요를 보면 22일 밤 서빙고리 권원주 집에서 이두현, 이대흥, 김상룔 등은 \"구한국 태극기\" 3기와 \"''경고'라는 제목으로 '마을 사람들은 반드시 독립 만세를 불러야 한다\"는 내용의 문서를 작성하여 마을 게시판에 붙여 주민을 선동했다. 또 이두현은 24일 같은 권원주 집에서 \"유지자일동\" 명의로 \"동빙고리, 서빙고리의 각 상점을 폐쇄하고 음력 2월27일을 기해 조선독립가를 부르자\"를 문서를 작성하여 같은 마을 권중섭 집으로 보냈다는 것이다." }, { "id": "11100550_1549611266900", "active": "Y", "name": "청량리", "subcat": "시위장소", "x": 127.048858808, "y": 37.581516457, "type": 1, "color": "#0000FF", "desc": "3월 5일 청량리에서 반우식 읍소 사건이 있었다. 유교 상례에서 반우식이란 반우제를 가르키는 것으로 망자의 장례를 치르고 집에 돌아와서 망자의 영혼을 맞아들이는 제사를 뜻한다, 고종의 장례도 국상에 준하여 치루어졌기 때문에 경성에서 홍릉으로 향하는 청량리 부근에서 반우식이 치루어졌고 여기에는 지방에서 상경한 유림들이 운집했다.\n3월 5일 청량리에서 순종을 맞이한 유생들은 한편으로 복벽주의적 인식을 공유하면서도 '국왕을 향한 상서'라는 전통적 방식의 고수와 '대중을 향한 호소'라는 새로운 방식의 모색으로 갈라지는 모습을 보였다. 이런 분화는 식민지시기 유교, 유림의 행동 양태가 보여줄 두 가지 방향성을 예고하는 것이었다." }, { "id": "start_07", "active": "Y", "name": "태화관 터", "subcat": "3.1운동 준비", "x": 126.985049737, "y": 37.571852683, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류: 3·1운동 \n- 종류: 건물 \n- 상태: 멸실 / 현재 태화빌딩(태화기독교사회복지관)이 들어서 있다. \n- 정의: 1919년 3월 1일 독립선언서에 서명한 민족대표들이 모여 독립선언식을 거행한 곳" }, { "id": "11100550_1549610721088", "active": "Y", "name": "노량진", "subcat": "시위장소", "x": 126.939455644, "y": 37.512474134, "type": 1, "color": "#0000FF", "desc": "북면에서 3.1운동으로 확인되는 것은 23일 노량진 일대 시위이다. 노량진에서는 밤 8시 반경부터 9시 정도까지 300여 명의 군중이 시위를 벌였다. 이를 제외하면 29일 구로리에서 100여 명이 시위를 벌인 것이 유일하다. 원해 북면 중 \"시가지화된\" 리를 분리하여 영등포면을 신설했음을 감안하면 다소 이례적이다. 그러나 \"발포하여 해산시켰다\"는 보고로 볼 때 구로리 시위의 강도는 일반적인 농촌부 시위처럼 격렬했던 것으로 여겨진다." }, { "id": "start_05", "active": "Y", "name": "보성사 터", "subcat": "3.1운동 준비", "x": 126.982021122, "y": 37.573398761, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류: 3·1운동 \n- 종류: 건물 \n- 상태: 멸실 / 현재 조계사 경내 서편 극락전 앞마당이 보성사 터로 비정된다. \n- 정의: 1919년 2월 27일 「독립선언서」를 인쇄하고, 3월 1일 『조선독립신문』 제1호를 발간한 곳" }, { "id": "11100550_1548915088438", "active": "Y", "name": "탑골공원(파고다공원)", "subcat": "3.1운동 중요지점", "x": 126.988548613, "y": 37.571070202, "type": 1, "color": "#0000FF", "desc": "3월1일 정오가 지나자 학교 생도를 비롯한 많은 사람들이 탑골공원(파고다공원)에 집결했다.\n오후 2시에  파고다 공원에서 학생들이 독립선언서를 낭독했고, 공원에 모인 군중은 독립 만세를 제창한 뒤 공원을 나와 가두 시위에 나섰다." }, { "id": "11100550_1548915797983", "active": "Y", "name": "인사동 요리점 명월관", "subcat": "3.1운동 중요지점", "x": 126.984844881, "y": 37.57200477, "type": 1, "color": "#0000FF", "desc": "민족대표 33인이 선언서를 낭독한 곳" }, { "id": "11100550_1549610606017", "active": "Y", "name": "당산리", "subcat": "시위장소", "x": 126.901999794, "y": 37.533888551, "type": 1, "color": "#0000FF", "desc": "23일에 당산리, 양평리, 북면 노량진리 등에서 간헐적으로 시위가 잇달았고 \"보병과 협력하여 해산시켰다.\"는 헌병대의 보고로 보아 시위 양상을 상당히 격렬했던 것으로 보인다." }, { "id": "start_08", "active": "Y", "name": "승동교회", "subcat": "3.1운동 준비", "x": 126.986330483, "y": 37.571279147, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류: 3·1운동 \n- 종류: 건물 \n- 상태: 부분변형 / 1912년 1차 준공 후 1958년 증축하였다. 현재는 약간의 수리 후 예전 모습을 간직하여 사용하고 있다. \n- 정의: 1919년 3·1운동 준비과정에서 제1회 및 제4회 학생단 간부회가 열린 장소로, 학생단 독립운동의 거점" }, { "id": "11100550_1549610807458", "active": "Y", "name": "서빙고부근", "subcat": "시위장소", "x": 126.994650109, "y": 37.5202832, "type": 1, "color": "#0000FF", "desc": "서빙고에서 운동이 잦아든 4월 8일에 나남으로 가는 군용열차에 돌을 던지는 자가 있었다는 점도 서빙고 사건의 여파라고 볼 수 있을 것 같다." }, { "id": "11100550_1549610636513", "active": "Y", "name": "양평리", "subcat": "시위장소", "x": 126.886237874, "y": 37.536488516, "type": 1, "color": "#0000FF", "desc": "23일 양평리 외곽 보리밭에서는 300여 명이 장작불을 밝히고 조선독립 만세를 고창하며 운동을 개시했다. 이에 주동자 5명이 체포되었으나 이 과정에서 순사보 1명이 군중에게 구타당하여 기절하는 일도 있었다." }, { "id": "적선동", "active": "Y", "name": "적선동", "subcat": "3.1운동 중요지점", "x": 126.974491217, "y": 37.574082051, "type": 1, "color": "#0000FF", "desc": "적선동, 도렴동, 당주동을 관통하는 길." }, { "id": "start_02", "active": "Y", "name": "3·1운동 단일화 합의 장소 - 김성수 숙소 터", "subcat": "3.1운동 준비", "x": 126.9872301, "y": 37.5808738, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n\n- 운동계열분류: 3·1운동 \n\n- 종류: 가옥 \n\n- 상태: 멸실 / 현재 2층 양옥이 들어서 있다. \n\n- 정의: 기독교계 지도자 이승훈이 송진우를 만나 천도교 측의 거사 제의를 받고 독립운동(3·1운동)의 일원화 문제를 처음 논의한 곳" }, { "id": "11100550_1549611048373", "active": "Y", "name": "숭인면사무소(추정)", "subcat": "시위장소", "x": 127.026669112, "y": 37.5782808, "type": 1, "color": "#0000FF", "desc": "경성 외곽 동(북)부 숭인면에서 3.1운동은 3월 5일 청량리에서 반우식 읍소 사건, 23일 밤 안암천 부근, 용두리 시위, 24일 동소문 밖 성북리 시위, 26일 전차 투석 시위, 27일 청량리, 돈암리 일대 시위 등을 들 수 있다. 다소 성격이 다른 반우식 읍소 사건 외에 3월 하순 수일에 걸쳐 면민들의 시위가 이어진 정황을 알 수 있다." }, { "id": "11100550_1548921956436", "active": "Y", "name": "신정", "subcat": "3.1운동 중요지점", "x": 127.001055661, "y": 37.561569394, "type": 1, "color": "#0000FF", "desc": "" }, { "id": "11100550_1549609824854", "active": "Y", "name": "창천리", "subcat": "시위장소", "x": 126.933659705, "y": 37.557681088, "type": 1, "color": "#0000FF", "desc": "경성시외에서는 3월 23일 오후 8시부터 고양군 동묘리, 돈암리, 청량리, 왕십리, 마포, 양화진, 수색, 녹번현, 동막, 당인리, 행주, 창천리, 구파발리 등 각지에서 50명 내지 1천명의 군중이 독립 만세를 불렀는데 모두 다음날 24일 오전 0시에는 진정되었다. 그리고 동대문 내외 청량리와 동묘리 부근의 군중이 운전중인 전차에 투석하여 전차 20대의 유리창 105매를 파괴했다." }, { "id": "11100550_1549610959046", "active": "Y", "name": "성북리", "subcat": "시위장소", "x": 126.994276899, "y": 37.598077534, "type": 1, "color": "#0000FF", "desc": "24일에는 동소문밖 성북리에서 약 60여 명이 만세 시위를 벌이다가 해산되었다. 26일 밤에도 성북천 일대에서 약 200여 명의 군중이 만세 시위를 벌였다. 이들은 전차에 돌을 던져 유리창을 깨고 승객을 내리게 하는 등 폭력적인 모습까지 보였으나 곧 해산되었다." }, { "id": "start_04", "active": "Y", "name": "옛 천도교 중앙총부 터", "subcat": "3.1운동 준비", "x": 126.982588698, "y": 37.577295063, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류: 3·1운동 \n- 종류: 건물 \n- 상태: 멸실 / 현재 덕성여자중학교의 교정으로 바뀌어 있다. \n- 정의:  3·1운동 당시 천도교 측의 유력한 거사추진 거점 가운데 하나였던 곳" }, { "id": "3.1운동 이동경로 기준_2", "active": "Y", "name": "구 러시아 공사관", "subcat": "3.1운동 중요지점", "x": 126.971590227, "y": 37.56793995, "type": 1, "color": "#0000FF", "desc": "구 러시아 공사관" }, { "id": "11100550_1549611164333", "active": "Y", "name": "왕십리공립보통학교", "subcat": "시위장소", "x": 127.022702719, "y": 37.564167933, "type": 1, "color": "#0000FF", "desc": "3월 9일 왕십리공립보통학교 교정에서는 약 300여 명의 하왕십리 주민이 모여 만세 시위를 벌였다. 현장에서 체포된 주동자급의 정철근은 경성지방법원 판결에 불복하여 복심법원, 고등법원까지 상고하며 끈질기게 자기 행위의 정당성을 주장했다." }, { "id": "11100550_1549612004098", "active": "Y", "name": "독도공립보통학교", "subcat": "시위장소", "x": 127.052071623, "y": 37.539380696, "type": 1, "color": "#0000FF", "desc": "3월 12일에는 독도공립간이농업학교 생도 손흥복, 조병직, 독도공립보통학교 생도 김동건이 보통학교 교내에서 만나 뚝섬에서 학생을 규합하여 만세 시위를 일으킬 것을 협의한 후 오후 1시경 학생 30여 명과 \"조선 독립 만세\"를 부르며 독도우편소 앞까지 행진하다가 해산당했다." }, { "id": "11100550_1549611340560", "active": "Y", "name": "회기리", "subcat": "시위장소", "x": 127.05683619, "y": 37.597410726, "type": 1, "color": "#0000FF", "desc": "" }, { "id": "11100550_1549611188647", "active": "Y", "name": "왕십리", "subcat": "시위장소", "x": 127.021671015, "y": 37.570640304, "type": 1, "color": "#0000FF", "desc": "23일은 경성 부근 곳곳에서 만세 시위가 동시에 벌어진 날이다. 왕십리에서도 홍광옥 등 다수의 군중이 밤에 산에서 \"조선 독립 만세\"를 외치며 시위를 벌였다, 왕십리 부근의 산이라면 아마도 응봉산으로 생각된다. 밤에 산에서 (횃불을 들고) 시위를 벌이는 이른바 '산상 시위'형태는 농촌 지역에서 많이 보이는 시위방식이다. 왕십리 산상 시위는 경성 부든에서는 거의 유일한 산상 시위이다. 왕십리에서는 26일에도 다시 150여 명의 군중이 독립 만세를 부르다가 해산당했다." }, { "id": "11100550_1549610425810", "active": "Y", "name": "동막(추정)", "subcat": "시위장소", "x": 126.942696993, "y": 37.540991557, "type": 1, "color": "#0000FF", "desc": "동막 일대에서는 26일에도 밤 8~9시 수백 명의 군중이 만세를 부르는 등 시위가 있었다. 동막의 '불온한' 기운은 4월초까지 이어졌다. 조선주차군사령부의 보고에 의하면 경성 시내는 표면상 평온을 되찾은 가운데 동막에서는 임시군용전화선을 절단하는 사건이 발생하기도 했다." }, { "id": "11100550_1549609931861", "active": "Y", "name": "아현공립보통학교", "subcat": "시위장소", "x": 126.957968097, "y": 37.556989023, "type": 1, "color": "#0000FF", "desc": "경성 시내 및 부근 곳곳에서 시위가 있었던 23일 용강면에서도 시위가 있었다. 이를 매일신보레서는 \"7시30분경 학생들이 아현공립보통학교 운동장에 모여 \"독입 만세를 부르는\" 사건이 있었다고 간단히 보도했다.\"" }, { "id": "11100550_1549610319988", "active": "Y", "name": "용강면(흥영여학교)", "subcat": "시위장소", "x": 126.943474363, "y": 37.540595476, "type": 1, "color": "#0000FF", "desc": "3월 5일 흥영여학교 시위의 개요는 다음과 같다. 용강면 동막상리에 사는 정호석이라는 사람이 오전 9시 반경 왼손 무명지를 깨물어 피를 낸 흰 무명에 태극기를 그리고 대나무를 매달아 집을 나섰다. 그는 11시경 사립 흥영여학교에 도착하여 교사와 학생들에게 만세 시위에 참여할 것을 요구했다. 그리하여 교사와 학생 등 수십여 명이 학교를 나와 공덕리까지 \"조선 독립 만세\"를 외치면 행진했다." }, { "id": "11100550_1549610080939", "active": "Y", "name": "당인리", "subcat": "시위장소", "x": 126.918079728, "y": 37.544304512, "type": 1, "color": "#0000FF", "desc": "경성시외에서는 3월 23일 오후 8시부터 고양군 동묘리, 돈암리, 청량리, 왕십리, 마포, 양화진, 수색, 녹번현, 동막, 당인리, 행주, 창천리, 구파발리 등 각지에서 50명 내지 1천명의 군중이 독립 만세를 불렀는데 모두 다음날 24일 오전 0시에는 진정되었다. 그리고 동대문 내외 청량리와 동묘리 부근의 군중이 운전중인 전차에 투석하여 전차 20대의 유리창 105매를 파괴했다." }, { "id": "start_12", "active": "Y", "name": "마포 전차종점 3·1운동 만세 시위지", "subcat": "시위장소", "x": 126.9441291, "y": 37.538246, "type": 1, "color": "#0000FF", "desc": "- 사적지 분류: 국내항일운동사적지 \n- 운동계열분류: 3·1운동 \n- 종류: 거리 \n- 상태: 완전변형 / 전차길이 없어지고, 현재 마포대교 진입로가 크게 확장되어 당시의 거리 모습을 찾아 볼 수가 없다. \n- 정의: 1919년 3월 1일 오후 8시경 약 1천명의 군중이 모여 독립만세시위를 벌인 곳" }];
+      const ROUTES = [{ "name": "시위운동 경로_서쪽2대_2", "color": "#00b0f0", "desc": "파고다  공원 - 서쪽 - 전차 교차점 - 프랑스영사관 - 서소문정 - 정곡천정 - 본정 2정목 - 무교정 - 대한문 - 미국영사관 - 대한문 앞 - 종로 - 청덕궁 - 안국정 - 광화문앞 - 프랑스영사관 - 서소문정 - 서대문정 - 영성문 - 대한문 - 정곡천정 - 본정", "points": [[37.57055470699715, 126.988150134725], [37.57014921125708, 126.98817555769013], [37.5701199138693, 126.98558256959608], [37.570110637514496, 126.97935445310758], [37.56903806824465, 126.97936191915848], [37.56612214337113, 126.97923404848176], [37.56580613648034, 126.97910246328809], [37.565019493825325, 126.97866520425995], [37.56489701557504, 126.97848488704192], [37.56482620076528, 126.97775786755368], [37.56481730738292, 126.9767671531075], [37.56491525556435, 126.97590732213811], [37.56473926209854, 126.97411225105012], [37.5647754381935, 126.97395760557322], [37.56516315856834, 126.97361518280756], [37.56536314775513, 126.97344907895396], [37.56660448845419, 126.97344034100296], [37.56705448153488, 126.9732878730614], [37.56706731268933, 126.97340616991602], [37.56664183441478, 126.97354816045156], [37.565339046920826, 126.973562537643], [37.56485093764624, 126.97401077469034], [37.564816628989306, 126.97412939954512], [37.564975360394975, 126.97577705245703], [37.564978219851255, 126.97595925074486], [37.56488955090539, 126.9767977865312], [37.565081043568114, 126.97678795483463], [37.565103889304176, 126.97741804451984], [37.56507028657328, 126.97820657206258], [37.56511055365775, 126.9783645047194], [37.5651881782708, 126.9784656459642], [37.56593970182506, 126.97885411862605], [37.56606553333839, 126.97905915717014], [37.56887059780436, 126.97919838049611], [37.56932869018426, 126.97920985526964], [37.570328707820096, 126.97923969513558], [37.57034266281014, 126.98284479085122], [37.57030532568157, 126.98732417054752], [37.57036934498598, 126.98801500563076], [37.57038011348619, 126.9883366468409], [37.57039763528952, 126.98878178714588], [37.57045156301844, 126.98978818060436], [37.57049482506672, 126.99078960872146], [37.57057319438706, 126.99205476279695], [37.57292224232901, 126.9913438872346], [37.57607979899024, 126.99038400228092], [37.57748501336589, 126.98994432688173], [37.57748012370927, 126.98933977062852], [37.57748550277844, 126.98915598441982], [37.57746089567567, 126.98819867373766], [37.57745420411421, 126.98760154809683], [37.577449656283655, 126.98749863434452], [37.57732436895234, 126.9869486988039], [37.57724566755395, 126.98674850236414], [37.57686539865552, 126.9859840709684], [37.57618267563935, 126.9844445026068], [37.57580160400451, 126.98348967244796], [37.575679474454105, 126.98273894509067], [37.57596144808336, 126.98070367441323], [37.57612920268121, 126.97971407452604], [37.575904314526106, 126.9789064227754], [37.57572935791245, 126.97705037263836], [37.57005738132335, 126.9771345361436], [37.57003201828844, 126.97280975769418], [37.56995209177976, 126.9720686032876], [37.569760535255135, 126.97156037959846], [37.56821831474839, 126.96934617374264], [37.56640438332991, 126.9674857841868], [37.56526687824291, 126.96645138076308], [37.56212325306121, 126.96428723652484], [37.561296231831285, 126.96378802775706], [37.56122159447261, 126.96385621533965], [37.56106195760509, 126.96393378674668], [37.560645817723895, 126.9640952836456], [37.56021436686069, 126.96435879047114], [37.55996497014369, 126.9645190897758], [37.56059613159187, 126.96556190529591], [37.5613737097278, 126.96659520256924], [37.561537723935466, 126.96698749563672], [37.56166758470127, 126.9674317216227], [37.56222426823774, 126.96982744882956], [37.56261391681839, 126.971525375584], [37.56295680832865, 126.973082396652], [37.563047579994624, 126.97353835295073], [37.56361788683588, 126.9751025719876], [37.56409429618704, 126.97634119805564], [37.56421976943732, 126.97667791710523], [37.5646280429206, 126.9767713076644], [37.56570529478108, 126.97680340443831], [37.56859857804508, 126.97679449085916], [37.56900370053761, 126.97617734121305], [37.56925233370337, 126.97584154693216], [37.569353367475614, 126.97575874101535], [37.56932311901649, 126.97453031622165], [37.56931713770786, 126.9741991359156], [37.57032759707685, 126.97441285026036], [37.570369555696345, 126.9767566234415], [37.569162706490665, 126.97678901610942], [37.5683847472676, 126.97679757189454], [37.56481509172159, 126.97677566097444], [37.564822544600055, 126.97744084456096], [37.56480932449977, 126.978527960219], [37.56214095359298, 126.98099793643593]] }, { "name": "시위운동 경로_3월5일_1대", "color": "#7030a0", "desc": "남대문 시장 - 조선은행 - 종로 보신각", "points": [[37.5564057532876, 126.97227174545064], [37.55922872591027, 126.9746861328783], [37.559773494009896, 126.9755767774321], [37.56037102889886, 126.97617268106052], [37.56080286659743, 126.9774749211597], [37.56129134169741, 126.97991198921292], [37.56158843584552, 126.98095885623118], [37.56200467421087, 126.98150149808366], [37.563174841876574, 126.98208523676534], [37.56547215728352, 126.98274465159952], [37.56651164537798, 126.9828702307626], [37.56854723055217, 126.98291792829896], [37.569760311630255, 126.9829702383008], [37.56976420521093, 126.98348907311942]] }, { "name": "시위운동 경로_서쪽2대_1", "color": "#c00000", "desc": "파고다  공원 - 서쪽 - 전차 교차점 - 프랑스영사관 - 서소문정 - 정곡천정 - 본정 2정목 - 무교정 - 대한문 - 미국영사관 - 대한문 앞 - 광화문 - 조선보병대 앞 - 서대문청 - 프랑스영사관 - 서소문정 - 장곡천정 - 본정", "points": [[37.57061770118764, 126.98812705553064], [37.57014906397026, 126.98814158678022], [37.57011061825745, 126.9834537280894], [37.57012861394651, 126.97934300400654], [37.56884635072297, 126.97932078950144], [37.5673836361266, 126.9792573683359], [37.5660966409404, 126.9791842333993], [37.56585502598475, 126.97906985158475], [37.5650644972893, 126.9786507366316], [37.564905228347904, 126.9783036590002], [37.5648839849778, 126.97757629342546], [37.564871365266434, 126.97727065600291], [37.56484037975603, 126.9768887157406], [37.56485074299796, 126.97668482629967], [37.564909234452905, 126.97615505874592], [37.56493755997755, 126.97593688921852], [37.56484306378602, 126.97495526678136], [37.56476478653312, 126.97407544117466], [37.56480487925412, 126.97397042010812], [37.56516846238603, 126.97364232112616], [37.56532770169284, 126.97347418295205], [37.56584821311268, 126.97347051928878], [37.56643856403314, 126.97346353308888], [37.566657070600144, 126.97344784073422], [37.56710935165465, 126.97330311318991], [37.56712540255087, 126.97336527946538], [37.56659652198557, 126.97351337665702], [37.56642528412481, 126.97351741272458], [37.56534372724643, 126.97353068634769], [37.56481405639895, 126.97400715584156], [37.56479659748404, 126.97413466410124], [37.56485806880929, 126.97478248319496], [37.56490489712652, 126.9751784654578], [37.564964310520885, 126.97587159352186], [37.56492111631119, 126.97629368444365], [37.564869283771216, 126.97680075907046], [37.56596267242079, 126.97691483764216], [37.56983834247547, 126.97688773380489], [37.57206394586336, 126.97672495172726], [37.575632963063086, 126.97665467883276], [37.57562560606933, 126.97702844861266], [37.57005536123543, 126.97704475131246], [37.57012407627322, 126.97223158677572], [37.56995925592, 126.97165522904528], [37.5695872819367, 126.9711143104158], [37.56910618235543, 126.97035901725232], [37.568163013841776, 126.9690747981564], [37.56731190215927, 126.96822025066984], [37.56651511877982, 126.96742195276552], [37.565103284657525, 126.9661524828074], [37.56359321558122, 126.9650875766242], [37.56166786242139, 126.96387849336963], [37.561351514173296, 126.96368544489056], [37.561255744893366, 126.96383898669492], [37.56107322288622, 126.96393345128388], [37.56067954005326, 126.96407805831204], [37.56016936516991, 126.9643732657025], [37.55992908430807, 126.96455614445108], [37.56055602069049, 126.96566126377095], [37.56107489320832, 126.9662916230485], [37.56137866387249, 126.96669424030408], [37.561559012930736, 126.9672109665509], [37.56207112279844, 126.96934448690176], [37.56303657856535, 126.97359787553606], [37.563251302169625, 126.97425026340912], [37.56363897182308, 126.97528359174562], [37.56419525918951, 126.9767403654264], [37.56482221881269, 126.97736724628908], [37.56506342192986, 126.97738820755208], [37.56504236679493, 126.97823193264954], [37.565111241458574, 126.9785201939977], [37.56471586097933, 126.97879470565606], [37.56330416500542, 126.98008120151631], [37.56211920438734, 126.981176420684]] }, { "name": "시위운동 경로_3월5일_2대", "color": "#ffc000", "desc": "남대문 시장 - 대한문 앞 - 무교정 - 종로 보신각", "points": [[37.55998004304277, 126.9754054933172], [37.56415066993019, 126.9768482463702], [37.56517892622007, 126.9770109037239], [37.56549904804505, 126.97806172920184], [37.56593563254147, 126.97895322611676], [37.566097020042, 126.98285865972844], [37.568520961930176, 126.98270318584171], [37.569819357794245, 126.98280744515948], [37.56982896838198, 126.98345850420854]] }, { "name": "이동경로 동대 7_1", "color": "#0100FF", "desc": "서소문정에서 갈라진 두 무리중 하나는 대한문으로 향했다.", "points": [[37.5629278574284, 126.97296739038212], [37.562944135898285, 126.97308050445422], [37.56301078239706, 126.97337159934156], [37.5630933148345, 126.97368805950626], [37.56322564596153, 126.97405512337518], [37.56352205244992, 126.97483432401114], [37.563889085446725, 126.97578854257154], [37.56422208547196, 126.97669205474118], [37.564515415667806, 126.97678058773984], [37.56481281333309, 126.97677001533026]] }, { "name": "시위운동 경로_서쪽_1대", "color": "#31859b", "desc": "파고다공원 - 서쪽 - 종로1정목 - 남대문정거장 - 의주통 - 미국영사관 - 이화학당 - 대한문 앞 - 광화문 - 조선보병대 앞 - 서대문정", "points": [[37.57056855817356, 126.98822647717704], [37.5702486509883, 126.9882428211334], [37.57020543928208, 126.98763162182372], [37.57020515767827, 126.98343042721454], [37.570193665670736, 126.98286430773288], [37.568890738525205, 126.9827544164279], [37.56766474569324, 126.98271759992991], [37.56554617316397, 126.98262467906883], [37.5638496564392, 126.98217216838876], [37.562495266490416, 126.9816323866126], [37.56199339270994, 126.98126221366068], [37.56166672751312, 126.9807662804386], [37.56146121505368, 126.98015062206998], [37.56093611798178, 126.97758404631632], [37.5605019211778, 126.97621705468644], [37.56000670529536, 126.97532038814444], [37.55804171719175, 126.97328486071024], [37.55744890193601, 126.97273991447928], [37.55742295367202, 126.97197585968954], [37.559358409164936, 126.97143005190676], [37.55991608622665, 126.97117135790472], [37.56183881475781, 126.96979904285786], [37.56208171308026, 126.96969541680826], [37.56285367552466, 126.97300754298108], [37.5636911563602, 126.972834629489], [37.56432667446765, 126.97284996655762], [37.56476147218732, 126.97282708717448], [37.5650270830422, 126.97276293785757], [37.56526148483968, 126.97327932337346], [37.56611161662988, 126.97190321155423], [37.56649091301915, 126.9710597705456], [37.56652705451709, 126.97107933096488], [37.56615137566772, 126.9719104042398], [37.56533582263536, 126.9732286379676], [37.565255002779125, 126.97334164675036], [37.56501148694504, 126.97280267893444], [37.56466908998621, 126.97287382334976], [37.56368910528712, 126.9728799358922], [37.56281555899351, 126.97305027218512], [37.56300533731277, 126.97376253193576], [37.56339541933362, 126.97491676645129], [37.564092236067104, 126.97678122621691], [37.56456794393985, 126.97693874406612], [37.564872289632426, 126.97697058557536], [37.56488311715517, 126.97687143213432], [37.56455855447708, 126.9768538863094], [37.56412748460155, 126.97670120878288], [37.5634938170304, 126.97507230435728], [37.5631649708595, 126.97409234938556], [37.56286075127309, 126.97307826102768], [37.56366221738279, 126.9729140942952], [37.5642255288988, 126.97290729463006], [37.56476623156641, 126.97288366938795], [37.56500033422735, 126.97282823470042], [37.565262154097454, 126.97342935140392], [37.56533600779095, 126.97331559917068], [37.56574758145355, 126.97263330345892], [37.56618162073345, 126.9719366874389], [37.56659637393793, 126.97095994483834], [37.56710225451327, 126.97020618490669], [37.56765462044446, 126.9697691454635], [37.568350915487486, 126.96926879809595], [37.56975719193537, 126.97131693925166], [37.57011394912343, 126.97198253112003], [37.57027902083543, 126.97261550892036], [37.57081538068298, 126.97262871296913], [37.57156833487621, 126.97270267290352], [37.57309604246127, 126.97268623933888], [37.57393874870204, 126.97267463501431], [37.575245658325, 126.97266541919772], [37.57608375648812, 126.97263119678183], [37.57657884818582, 126.97248614336134], [37.57654233394866, 126.97339239565156], [37.576428923415065, 126.9742369006504], [37.57577597292069, 126.97435473973464], [37.57557750296731, 126.9763436352698], [37.57017966396878, 126.9766192332406], [37.57016360731416, 126.9740204947476], [37.57018390186312, 126.9725086019042], [37.57006480711755, 126.97207913164036], [37.56969632764678, 126.97131170752009], [37.5682355520507, 126.96917053450576], [37.5671804714482, 126.9680569940893], [37.5661529055648, 126.96705086078713], [37.564207880761934, 126.9654738272568], [37.56240433792739, 126.96429215900838], [37.56146424317417, 126.96369879011856], [37.561264031383175, 126.9638178389479], [37.56107440938733, 126.96392676241112], [37.56069194610281, 126.96406591092696], [37.5602098554117, 126.96436270060998], [37.55995664685982, 126.9645420770863], [37.55981901941784, 126.96463335829336], [37.56043681380978, 126.96571023569936], [37.56105800538819, 126.96654367105984], [37.561535337738015, 126.96745740297906], [37.56196354975949, 126.9694754612348], [37.56240471495521, 126.97137456190973], [37.56276802496514, 126.9730024848868], [37.56297007741901, 126.97384461607456], [37.56412214207816, 126.97702112245634], [37.56496132170301, 126.9772303962822], [37.56500994306531, 126.97854354652524], [37.56447388072888, 126.97880182661736], [37.56386197262909, 126.97939800037406], [37.56214597031435, 126.98111395990163], [37.56160612349792, 126.98133283483888], [37.56061442199783, 126.98173452611675], [37.560687117724406, 126.98225882228314], [37.560997076512265, 126.98514099256592], [37.56110165761612, 126.98674072271136]] }, { "name": "시위운동 경로_동쪽 2대", "color": "#0100FF", "desc": "파고다 공원 - 동쪽 - 창덕궁 앞 - 안국동 - 광화문 - 프랑스영사관 - 미국영사관 (또는 영성문) - 대한문 앞 - 장곡천정 - 본점 - 종로 - 동대문", "points": [[37.56283580076472, 126.97304163746792], [37.56366311354886, 126.97289274404652], [37.56459644731667, 126.97289030077572], [37.5650248676706, 126.9727714458636], [37.56517613697744, 126.9731703723679], [37.56529292995032, 126.97325645550472], [37.56579871168213, 126.97247724753112], [37.56614764403124, 126.97189729553192], [37.56662493090936, 126.97079555312148], [37.56718500385084, 126.97006688575782], [37.5677947970534, 126.96968271520277], [37.568533444992894, 126.9692703338836], [37.56939534046139, 126.97052116550636], [37.56940337408577, 126.97130811632744], [37.56940416768391, 126.9717672927818], [37.56941322464056, 126.972502713257], [37.56944323507064, 126.9732082042144], [37.569399435994114, 126.97440272642235], [37.56943022109552, 126.97579228727255], [37.56910035358905, 126.97612287623302], [37.56884397881965, 126.97652207958616], [37.56842525356041, 126.97734490301129], [37.56721290472233, 126.97733638879726], [37.56573033538587, 126.97736939422684], [37.56516247931531, 126.97736769990333], [37.56510853397224, 126.97851942025062], [37.56470953270898, 126.9787291886416], [37.56386058853354, 126.97953382970717], [37.562840742503816, 126.98046113362048], [37.5619661789812, 126.98122277279072], [37.56115296367761, 126.98160822841486], [37.56131234879008, 126.98319744441], [37.56155494648676, 126.98499199697612], [37.562437492909375, 126.98481449452716]] }, { "name": "시위운동 경로_동쪽 1대", "color": "#76923c", "desc": "파고다 공원 - 동쪽 - 창덕궁 앞 - 안국동 - 광화문 - 프랑스영사관 - 서소문청정", "points": [[37.57074437689774, 126.98823942919736], [37.5701992256528, 126.9882771312556], [37.57044137648948, 126.99217093662044], [37.57741326208013, 126.99007375230543], [37.57736878665863, 126.98794086593064], [37.577324238491485, 126.98720911936908], [37.57714606952786, 126.98665541466916], [37.57690416704936, 126.98624529855434], [37.57657316063062, 126.98549287847426], [37.57604065127728, 126.98429610691188], [37.57578456025755, 126.98367837684798], [37.57550684024388, 126.9828049170864], [37.57561216860268, 126.98215867515576], [37.57578429629386, 126.98133077109036], [37.57589285121387, 126.98023162194328], [37.57581455764697, 126.97899198444584], [37.57568301242121, 126.97676191420828], [37.57019170433769, 126.9769563772574], [37.5701888731211, 126.97263267799173], [37.57011201800881, 126.97195378249042], [37.569896320424334, 126.97136849952648], [37.56916240422524, 126.97033393382344], [37.5683343405381, 126.96909056760168], [37.56759197353799, 126.96836546605124], [37.56610704727118, 126.9668756755712], [37.56517062745137, 126.96609538618424], [37.5644967380752, 126.96556800971476], [37.563088816867065, 126.96462909588108], [37.56176644173569, 126.96375323735168], [37.56142991653041, 126.9635829791055], [37.56126642969805, 126.96381501939716], [37.561127161765086, 126.96390218242524], [37.56094943425143, 126.96396573002976], [37.560773959990456, 126.96402926118596], [37.56058067774015, 126.96414104027198], [37.56043260005783, 126.9642532876586], [37.560176035163465, 126.9643534036626], [37.55981464117441, 126.96466169561384], [37.56041904362123, 126.96576697504258], [37.56116954208719, 126.96679197306744], [37.56134701154248, 126.96717001639423], [37.56150724476998, 126.96772368533064], [37.56196441453282, 126.96966794142617], [37.56224267679895, 126.97091713474153], [37.56250202615931, 126.97197115240928], [37.56266297037416, 126.97268901631128], [37.56280301183491, 126.97326832549189], [37.562972444249496, 126.97387007590768], [37.56332595260843, 126.9748215469292], [37.56360181033308, 126.9755414500842]] }];
+
+      // Route color name lookup
+      const ROUTE_LABELS = {
+        '시위운동 경로_동쪽 1대': '동쪽 1대 (탑골→창덕궁→광화문→프랑스영사관)',
+        '시위운동 경로_동쪽 2대': '동쪽 2대 (탑골→창덕궁→안국동→광화문→대한문)',
+        '시위운동 경로_서쪽_1대': '서쪽 1대 (탑골→종로→서울역→의주통→대한문→광화문)',
+        '시위운동 경로_서쪽2대_1': '서쪽 2대-1 (탑골→종로→프랑스영사관→서소문→대한문)',
+        '시위운동 경로_서쪽2대_2': '서쪽 2대-2 (탑골→종로→프랑스영사관→서소문→대한문)',
+        '시위운동 경로_3월5일_1대': '3월 5일 1대 (남대문역→조선은행→종로보신각)',
+        '시위운동 경로_3월5일_2대': '3월 5일 2대 (남대문역→대한문→무교정→보신각)',
+        '이동경로 동대 7_1': '동대 7_1 (서소문정→대한문)',
+      };
+
+      // Draw routes with animated dashed lines
+      ROUTES.forEach(route => {
+        const color = route.color || '#c0392b';
+        const label = ROUTE_LABELS[route.name] || route.name;
+        L.polyline(route.points, {
+          color: color,
+          weight: 3,
+          opacity: 0.85,
+          dashArray: '10, 6',
+        }).addTo(map)
+          .bindPopup(`<b style="color:${color}">${route.name}</b><br><small style="color:#aaa">${label}</small>`, { maxWidth: 280 });
+      });
+
+      // Draw animated arrow heads at intervals (direction indicators)
+      ROUTES.forEach(route => {
+        const pts = route.points;
+        const color = route.color || '#c0392b';
+        const step = Math.max(1, Math.floor(pts.length / 5));
+        for (let i = step; i < pts.length - 1; i += step) {
+          const p1 = pts[i - 1], p2 = pts[i];
+          const angle = Math.atan2(p2[1] - p1[1], p2[0] - p1[0]) * 180 / Math.PI;
+          L.marker(p2, {
+            icon: L.divIcon({
+              className: '',
+              html: `<div style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:14px solid ${color};transform:rotate(${angle + 90}deg);opacity:0.8;"></div>`,
+              iconSize: [14, 14],
+              iconAnchor: [7, 7]
+            }),
+            interactive: false
+          }).addTo(map);
+        }
+      });
+
+      // Place category styles
+      const catStyle = {
+        '3.1운동 준비': { color: '#d4a017', size: 12, zIndex: 500 },
+        '3.1운동 중요지점': { color: '#c0392b', size: 14, zIndex: 600 },
+        '시위장소': { color: '#3498db', size: 9, zIndex: 400 },
+      };
+
+      PLACES.forEach(p => {
+        const style = catStyle[p.subcat] || { color: '#888', size: 8, zIndex: 300 };
+        const s = style.size;
+        const icon = L.divIcon({
+          className: '',
+          html: `<div style="width:${s}px;height:${s}px;background:${style.color};border-radius:50%;border:2px solid rgba(255,255,255,0.7);box-shadow:0 0 8px ${style.color}99;cursor:pointer;transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.6)'" onmouseout="this.style.transform='scale(1)'"></div>`,
+          iconSize: [s, s],
+          iconAnchor: [s / 2, s / 2]
+        });
+        const popupContent = `<b style="color:${style.color};font-family:'Noto Serif KR',serif">${p.name}</b><br><small style="color:#888;font-family:'Playfair Display',serif;font-style:italic">${p.subcat}</small>${p.desc ? '<hr style="border-color:#333;margin:6px 0"><p style="color:#ccc;font-size:0.78rem;line-height:1.6;max-width:220px;margin:0">' + p.desc.substring(0, 120) + (p.desc.length > 120 ? '…' : '') + '</p>' : ''}`;
+        L.marker([p.y, p.x], { icon, zIndexOffset: style.zIndex })
+          .addTo(map)
+          .bindPopup(popupContent, { maxWidth: 260, className: 'march-popup' });
+
+        // Permanent labels for key spots only
+        // const KEY_NAMES = ['탑골공원', '태화관 터', '대한문 앞', '독립문', '프랑스영사관', '보성사 터'];
+        // if (KEY_NAMES.some(k => p.name.includes(k.split(' ')[0]))) {
+        //   L.marker([p.y, p.x], { interactive: false, zIndexOffset: style.zIndex + 100,
+        //     icon: L.divIcon({
+        //       className: '',
+        //       html: `<div style="background:rgba(10,8,5,0.85);border:1px solid ${style.color}55;color:#f5f0e8;font-family:'Noto Sans KR',sans-serif;font-size:0.65rem;padding:2px 6px;white-space:nowrap;pointer-events:none;margin-top:14px">${p.name}</div>`,
+        //       iconAnchor: [0, 0]
+        //     })
+        //   }).addTo(map);
+        // }
+      });
+
+      // Map legend overlay
+      const legend = L.control({ position: 'bottomleft' });
+      legend.onAdd = () => {
+        const div = L.DomUtil.create('div');
+        div.style.cssText = 'background:rgba(10,8,5,0.88);border:1px solid rgba(192,57,43,0.3);padding:10px 14px;font-family:"Noto Sans KR",sans-serif;font-size:0.72rem;color:#f5f0e8;min-width:180px';
+        div.innerHTML = `
+        <div style="font-family:'Noto Serif KR',serif;font-weight:700;margin-bottom:8px;font-size:0.8rem">범례 · Legend</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><div style="width:10px;height:10px;background:#d4a017;border-radius:50%"></div><span>3.1운동 준비 거점</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><div style="width:10px;height:10px;background:#c0392b;border-radius:50%"></div><span>중요 지점</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div style="width:10px;height:10px;background:#3498db;border-radius:50%"></div><span>시위 장소</span></div>
+        <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:7px;font-size:0.65rem;opacity:0.6">동선을 클릭하면 경로 정보가 표시됩니다</div>
+      `;
+        return div;
+      };
+      legend.addTo(map);
+    }
+
+    // ─────────────────────────────────────────
+    // LEAFLET — Full Seoul Story Map (Section 6)
+    // ─────────────────────────────────────────
+    function initMapFull() {
+      const mapId = 'leaflet-full';
+      const mapElement = document.getElementById(mapId);
+
+      if (!mapElement) return;
+
+      const map = L.map(mapId, {
+        center: [37.5580, 126.9750],
+        zoom: 13,
+        zoomControl: true,
+        scrollWheelZoom: false,
+        attributionControl: false
+      });
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© CartoDB'
+      }).addTo(map);
+
+      // 13개 시위장소 데이터
+      const protestPlaces = [
+        { name: "탑골공원(파고다공원)", lat: 37.571221, lng: 126.988241, desc: "3월 1일 정오 학생들이 독립선언서를 낭독하고 만세를 제창한 3·1운동의 역사적인 발상지입니다." },
+        { name: "태화관 터", lat: 37.573420, lng: 126.984622, desc: "민족대표 33인이 모여 독립선언서를 직접 낭독하고 독립의 결의를 선포한 역사적인 거사 장소입니다." },
+        { name: "보성사 터", lat: 37.574411, lng: 126.981829, desc: "독립선언서 2만여 장을 극비리에 인쇄해내어 전국 만세 운동 확산의 도화선을 당긴 인쇄소 터입니다." },
+        { name: "종로경찰서 터", lat: 37.572115, lng: 126.985220, desc: "당시 시위대를 잔혹하게 체포하고 악독하게 심문·탄압했던 식민지 일제 경찰 통치의 핵심 기관입니다." },
+        { name: "동대문 주변 만세 시위지", lat: 37.571120, lng: 127.009411, desc: "수많은 군중이 동대문을 중심으로 가두 만세 시위를 벌이며 일제 군경의 통제선에 강력히 저항했던 지점입니다." },
+        { name: "남대문역 광장(현 서울역 광장)", lat: 37.555541, lng: 126.971510, desc: "3월 5일 학생 단체 주도로 수만 명의 군중이 집결하여 격렬한 대규모 2차 가두 만세 시위를 전개한 곳입니다." },
+        { name: "서대문 감옥 터(서대문형무소 역사관)", lat: 37.574239, lng: 126.956221, desc: "만세 시위로 체포된 유관순 열사를 비롯한 수많은 독립운동가들이 투옥되어 옥고를 치른 탄압과 저항의 현장입니다." },
+        { name: "공덕리 만세 시위지", lat: 37.543981, lng: 126.951032, desc: "3월 23일 밤, 공덕리와 동막 일대에서 수백 명의 주민들이 집결하여 격렬하게 만세를 벌인 외곽 저항지입니다." },
+        { name: "마포 전차종점 만세 시위지", lat: 37.538246, lng: 126.944129, desc: "마포, 양화진 일대의 군중 1천여 명이 전차종점에 모여 밤늦게까지 만세를 부르고 운전 중인 전차를 타격했던 격렬한 시위지입니다." },
+        { name: "합정리 만세 시위지", lat: 37.546485, lng: 126.911114, desc: "합정리 일대에서 30여 명의 주민들이 기습적으로 집합하여 독립 만세를 부르며 일제 동태를 감시하고 시위를 전개했습니다." },
+        { name: "청량리 반우식 읍소 시위지", lat: 37.588221, lng: 127.053678, desc: "3월 5일 고종의 국상과 연계되어 홍릉으로 향하는 길목인 청량리 부근에 유림들과 상경 군중들이 운집해 시위를 벌였습니다." },
+        { name: "양평리 만세 시위지", lat: 37.525500, lng: 126.886400, desc: "양평리(현 양평동) 일대 주민들이 한밤중에 대규모로 모여 밤늦게까지 격렬하게 독립 만세를 외쳤던 외곽 시위 거점입니다." },
+        { name: "회기리 만세 시위지", lat: 37.589800, lng: 127.057800, desc: "고양군 회기리 일대의 군중들이 함께 일어선 동부 교외 시위지로, 전차에 투석하는 등 적극적인 저항을 보여준 곳입니다." }
+      ];
+
+      const createFlashIcon = (color) => L.divIcon({
+        className: '',
+        html: `
+      <div class="pulse-container" style="color: ${color};">
+        <div class="pulse-dot"></div>
+        <div class="pulse-wave"></div>
+      </div>
+    `,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+      });
+
+      // 실제로 마커를 드랍하는 메인 함수
+      const startDroppingMarkers = () => {
+        let index = 0;
+        const mainColor = '#a83228';
+
+        const dropInterval = setInterval(() => {
+          if (index >= protestPlaces.length) {
+            clearInterval(dropInterval);
+            return;
+          }
+
+          const p = protestPlaces[index];
+
+          L.marker([p.lat, p.lng], { icon: createFlashIcon(mainColor) })
+            .addTo(map)
+            .bindPopup(`
+          <b style="color:${mainColor}; font-size:14px; font-family:'Noto Serif KR';">${p.name}</b><br>
+          <span style="color:#b8922e; font-size:11px; font-weight:500;">[서브카테고리: 시위장소]</span><br>
+          <p style="color:#d8d2c8; font-size:12px; margin:6px 0 0 0; line-height:1.5;">${p.desc}</p>
+        `);
+
+          index++;
+        }, 400); // 0.8초 간격 쿵, 쿵, 쿵
+      };
+
+      // 브라우저 최적화 스크롤 감지 레이더 (Intersection Observer)
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          // 지도가 화면에 30%(0.3) 이상 보이기 시작하면 실행
+          if (entry.isIntersecting) {
+            startDroppingMarkers(); // 마커 드랍 시작!
+            observer.unobserve(mapElement); // 중복 실행 방지를 위해 감지 해제
+          }
+        });
+      }, { threshold: 0.3 }); // 0.3 수치를 조절해서 타이밍 변경 가능 (예: 0.5는 화면의 절반)
+
+      observer.observe(mapElement);
+    }
+    // ─────────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      initMapBackground();
+      initMapSeoul();
+      initMapFull();
+      setLang('ko'); // default
+
+      document.querySelectorAll('.tl-card').forEach(card => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function () {
+          const isOpen = this.classList.contains('open');
+          const desc = this.querySelector('.tl-desc');
+          const icon = this.querySelector('.tl-toggle-icon');
+          const enText = this.querySelector('.en-text');
+
+          if (!isOpen) {
+            this.classList.add('open');
+            if (desc) desc.classList.add('visible');
+            if (icon) icon.textContent = '−';
+            if (enText) enText.style.display = 'block';
+          } else {
+            this.classList.remove('open');
+            if (desc) desc.classList.remove('visible');
+            if (icon) icon.textContent = '+';
+            if (enText) enText.style.display = 'none';
+          }
+        });
+      });
+
+
+    });
+
+    // Custom Leaflet tooltip style injection
+    const style = document.createElement('style'); // popup style injected below
+    style.textContent = `
+    .map-tooltip {
+      background: rgba(10,8,5,0.85) !important;
+      border: 1px solid rgba(192,57,43,0.4) !important;
+      color: #f5f0e8 !important;
+      font-family: 'Noto Sans KR', sans-serif !important;
+      font-size: 0.72rem !important;
+      padding: 3px 8px !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    .map-tooltip::before { border-right-color: rgba(192,57,43,0.4) !important; }
+    .leaflet-popup-content-wrapper {
+      background: rgba(10,8,5,0.92) !important;
+      border: 1px solid rgba(192,57,43,0.3) !important;
+      border-radius: 0 !important;
+      color: #f5f0e8 !important;
+      font-family: 'Noto Sans KR', sans-serif !important;
+    }
+    .leaflet-popup-tip { background: rgba(10,8,5,0.92) !important; }
+    .leaflet-popup-close-button { color: #f5f0e8 !important; }
+    .leaflet-control-zoom a {
+      background: rgba(10,8,5,0.85) !important;
+      color: #f5f0e8 !important;
+      border-color: rgba(192,57,43,0.3) !important;
+      border-radius: 0 !important;
+    }
+    .leaflet-control-zoom a:hover { background: rgba(192,57,43,0.4) !important; }
+  `;
+    document.head.appendChild(style);
+  </script>
+</body>
+
+</html>
