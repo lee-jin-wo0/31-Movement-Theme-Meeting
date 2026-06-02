@@ -1,0 +1,8 @@
+*
+!image/
+!image/**
+!일일일지/
+!일일일지/**
+!Proto_Project/
+!Proto_Project/**
+!.gitignore

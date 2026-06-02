@@ -1,0 +1,18 @@
+{
+  "openViewOnStart": true,
+  "calendarType": "US",
+  "dateSource": "filename",
+  "yamlKey": "created",
+  "dateFormat": "YYYYMMDD",
+  "defaultFolder": "일일일지",
+  "defaultFileNamePrefix": "",
+  "fixedCalendar": true,
+  "showDestinationFolderDuringCreate": false,
+  "allowSlashhDuringCreate": false,
+  "openFileBehaviour": "current-tab",
+  "sortingOption": "name",
+  "newNoteDate": "active-date",
+  "newNoteCancelButtonReverse": false,
+  "fileNameOverflowBehaviour": "hide",
+  "showWeekNumbers": false
+}
